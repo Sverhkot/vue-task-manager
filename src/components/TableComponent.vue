@@ -85,7 +85,7 @@
   import draggable from 'vuedraggable'
   import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/vue/24/solid'
   import { useRouter } from 'vue-router'
-import type { Header, Model } from '@/types/types'
+  import type { Header, Model } from '@/types/types'
 
   const router = useRouter()
 
@@ -216,6 +216,9 @@ import type { Header, Model } from '@/types/types'
 <style scoped lang="scss">
 .projects-table {
   overflow-x: auto;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
 
   table {
     width: 100%;
@@ -226,7 +229,7 @@ import type { Header, Model } from '@/types/types'
 
   th, td {
     padding: 10px 14px;
-    border: 1px solid #e2e8f0;
+    border: 0.5px solid #e2e8f0;
     text-align: left;
     word-wrap: break-word;
     overflow: hidden;

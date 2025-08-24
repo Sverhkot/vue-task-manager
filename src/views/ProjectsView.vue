@@ -21,12 +21,14 @@
       :headers="projectsHeaders"
       table-type="projects"
     />
+    <AddButtonComponent/>
   </div>
 </template>
 
 <script setup lang="ts">
 import ProjectsTable from '@/components/TableComponent.vue'
 import { useProjectsStore } from '../stores/projects/index.ts'
+import AddButtonComponent from '@/components/ui/AddButtonComponent.vue';
 import { storeToRefs } from 'pinia'
 import { onMounted, ref } from 'vue';
 
@@ -76,6 +78,7 @@ onMounted(async () => {
 <style scoped lang="scss">
   .projects {
     padding: 20px;
+    margin: 20px;
   }
 
   .loading, .error, .empty {
