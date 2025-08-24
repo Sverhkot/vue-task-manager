@@ -7,7 +7,6 @@ export const useProjectsStore = defineStore('projects', () => {
   const loading = ref(false)
   const error = ref<string | null>(null)
 
-  // Mock data for development
   const mockProjects: Project[] = [
     {
       id: 1,
@@ -40,7 +39,6 @@ export const useProjectsStore = defineStore('projects', () => {
     error.value = null
 
     try {
-      // Try to fetch from API first
       const response = await fetch('http://localhost:3000/projects')
       
       if (response.ok) {
@@ -57,9 +55,9 @@ export const useProjectsStore = defineStore('projects', () => {
     } catch (err) {
       console.warn('Failed to fetch from API, using mock data:', err)
       
-      // Fallback to mock data
+
       projects.value = mockProjects
-      error.value = null // Don't show error when using fallback
+      error.value = null
       
       return {
         success: true,

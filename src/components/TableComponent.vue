@@ -66,12 +66,22 @@
         <template #item="{ element: row }">
           <tr v-if="tableType === 'projects'">
             <td v-for="header in headersState" :key="String(header.key)" @click="goToProject(row.id)">
-              {{ row[String(header.key)] }}
+              <span v-if="header.key === 'createdAt'">
+                {{ formatDate(row[String(header.key)]) }}
+              </span>
+              <span v-else>
+                {{ row[String(header.key)] }}
+              </span>
             </td>
           </tr>
           <tr v-else-if="tableType === 'tasks'">
             <td v-for="header in headersState" :key="String(header.key)">
-              {{ row[String(header.key)] }}
+              <span v-if="header.key === 'dueDate' || header.key === 'createdAt'">
+                {{ formatDate(row[String(header.key)]) }}
+              </span>
+              <span v-else>
+                {{ row[String(header.key)] }}
+              </span>
             </td>
           </tr>
         </template>
@@ -198,6 +208,18 @@
       document.body.style.cursor = ''
       document.body.style.userSelect = ''
     }
+  }
+
+  function formatDate(dateString: string): string {
+    if (!dateString) return ''
+    
+    const date = new Date(dateString)
+    
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    })
   }
 
   onMounted(() => {
