@@ -80,21 +80,12 @@
   import draggable from 'vuedraggable'
   import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/vue/24/solid'
   import { useRouter } from 'vue-router'
+import type { Header, Model } from '@/types/types'
 
   const router = useRouter()
 
   function goToProject(id: number) {
     router.push(`/projects/${id}`)
-  }
-
-  type Model = Record<string, unknown>
-
-  interface Header<T> {
-    key: keyof T
-    title?: string
-    width?: number
-    minWidth?: number
-    sortable?: boolean
   }
 
   const props = defineProps<{
