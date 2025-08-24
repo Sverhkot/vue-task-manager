@@ -5,14 +5,14 @@
         <tr>
           <th
             v-for="(header, index) in headersState"
-            :key="header.key"
+            :key="String(header.key)"
             :style="{ width: header.width + 'px', minWidth: header.minWidth + 'px' }"
           >
-            <div class="header-content" @click="sortBy(header.key as string)">
+            <div class="header-content" @click="sortBy(String(header.key))">
               {{ header.title }}
               <span v-if="header.sortable">
-                <ChevronUpIcon v-if="sortKey === header.key && sortOrder === 'asc'" class="icon active" />
-                <ChevronDownIcon v-else-if="sortKey === header.key && sortOrder === 'desc'" class="icon active" />
+                <ChevronUpIcon v-if="sortKey === String(header.key) && sortOrder === 'asc'" class="icon active" />
+                <ChevronDownIcon v-else-if="sortKey === String(header.key) && sortOrder === 'desc'" class="icon active" />
                 <ChevronUpIcon v-else class="icon inactive" />
               </span>
             </div>
@@ -27,24 +27,24 @@
             <input
               v-if="['name', 'assignee'].includes(String(header.key))"
               type="text"
-              v-model="filters[header.key as string]"
-              :placeholder="`Search by ${header.key}`"
+              v-model="filters[String(header.key)]"
+              :placeholder="`Search by ${String(header.key)}`"
               @click.stop
             />
             <select
-              v-else-if="header.key === 'status' && tableType === 'tasks'"
+              v-else-if="String(header.key) === 'status' && tableType === 'tasks'"
               v-model="filters.status"
               name="status"
               @click.stop
             >
               <option value="" selected>All</option>
-              <option value="todo">To Do</option>
-              <option value="in-progress">In Progress</option>
-              <option value="done">Done</option>
+              <option value="To Do">To Do</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Done">Done</option>
 
             </select>
             <select
-              v-else-if="header.key === 'status' && tableType === 'projects'"
+              v-else-if="String(header.key) === 'status' && tableType === 'projects'"
               v-model="filters.status"
               name="status"
               @click.stop
@@ -65,8 +65,13 @@
       >
         <template #item="{ element: row }">
           <tr v-if="tableType === 'projects'">
-            <td v-for="header in headersState" :key="header.key" @click="goToProject(row.id)">
-              {{ row[header.key as string] }}
+            <td v-for="header in headersState" :key="String(header.key)" @click="goToProject(row.id)">
+              {{ row[String(header.key)] }}
+            </td>
+          </tr>
+          <tr v-else-if="tableType === 'tasks'">
+            <td v-for="header in headersState" :key="String(header.key)">
+              {{ row[String(header.key)] }}
             </td>
           </tr>
         </template>
@@ -118,6 +123,10 @@ import type { Header, Model } from '@/types/types'
   )
 
   const filteredItems = computed(() => {
+    if (!props.modelValue || !Array.isArray(props.modelValue)) {
+      return []
+    }
+    
     let result = [...props.modelValue]
 
     for (const key in filters.value) {
@@ -131,19 +140,19 @@ import type { Header, Model } from '@/types/types'
       }
     }
 
-  if (sortKey.value) {
-    result.sort((a, b) => {
-      const valA = a[sortKey.value as keyof typeof a]
-      const valB = b[sortKey.value as keyof typeof b]
+    if (sortKey.value) {
+      result.sort((a, b) => {
+        const valA = a[sortKey.value as keyof typeof a]
+        const valB = b[sortKey.value as keyof typeof b]
 
-      const aComparable = (valA as string | number)
-      const bComparable = (valB as string | number)
+        const aComparable = (valA as string | number)
+        const bComparable = (valB as string | number)
 
-      if (aComparable < bComparable) return sortOrder.value === 'asc' ? -1 : 1
-      if (aComparable > bComparable) return sortOrder.value === 'asc' ? 1 : -1
-      return 0
-    })
-  }
+        if (aComparable < bComparable) return sortOrder.value === 'asc' ? -1 : 1
+        if (aComparable > bComparable) return sortOrder.value === 'asc' ? 1 : -1
+        return 0
+      })
+    }
 
     return result
   })
@@ -152,7 +161,6 @@ import type { Header, Model } from '@/types/types'
     get() { return filteredItems.value },
     set(newItems) { emit('update:modelValue', newItems) }
   })
-
 
   function sortBy(key: string) {
     if (sortKey.value === key) sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc'
