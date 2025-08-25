@@ -1,4 +1,4 @@
-import http from "../api";
+import http from "../api"
 
 export interface ProjectTask {
   id: number
@@ -10,23 +10,23 @@ export interface ProjectTask {
 }
 
 export async function getProjectTasks(projectId: number) {
-  const response = await http.get<ProjectTask[]>(`projectTasks?projectId=${projectId}`);
+  const response = await http.get<ProjectTask[]>(`projectTasks?projectId=${projectId}`)
   
   return {
     status: response.status,
     data: {
       content: response.data
     }
-  };
+  }
 }
 
 export async function getAllTasks() {
-  const response = await http.get<ProjectTask[]>("projectTasks");
+  const response = await http.get<ProjectTask[]>("projectTasks")
   
   return {
     status: response.status,
     data: {
       content: response.data
     }
-  };
+  }
 }

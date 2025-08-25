@@ -1,5 +1,5 @@
-import projectController from "./projects";
+import projectController from "./projects"
 
 export const API = {
   projects: projectController,
-};
+}

@@ -30,8 +30,8 @@
 import { storeToRefs } from 'pinia'
 import { onMounted, ref, watch } from 'vue'
 
-import ProjectsTable from '@/components/TableComponent.vue'
 import { useProjectsStore } from '@/stores/projects.ts'
+import ProjectsTable from '@/components/TableComponent.vue'
 import AddButtonComponent from '@/components/ui/AddButtonComponent.vue'
 import type { Project } from '@/types/types.ts'
 
@@ -52,7 +52,7 @@ const draggableProjects = ref<Project[]>([])
 watch(
   () => projectsStore.projectsWithCounts,
   function (newVal) {
-    draggableProjects.value = newVal.slice();
+    draggableProjects.value = newVal.slice()
   },
   { immediate: true }
 )
@@ -70,11 +70,11 @@ const loadProjects = async () => {
   console.log('Attempting to load projects...')
   
   try {
-    const result = await projectsStore.dispatchGetProjects();
+    const result = await projectsStore.dispatchGetProjects()
     console.log('Load result:', result)
     
     if (!result.success) {
-      console.error("Failed to load projects:", result.status, result);
+      console.error("Failed to load projects:", result.status, result)
     }
   } catch (err) {
     console.error('Error during project loading:', err)
@@ -90,7 +90,7 @@ onMounted(async () => {
   if (hasTriedLoading.value) return
   hasTriedLoading.value = true
   await loadProjects()
-});
+})
 </script>
 
 <style scoped lang="scss">
