@@ -1,19 +1,27 @@
 export interface Project {
-  id: number
+  id: string
   name: string
-  description?: string
-  tasksCount: number
-  status: 'active' | 'archived'
+  status: ProjectStatus
   createdAt: string
+  description?: string
+}
+export enum ProjectStatus {
+  ACTIVE = 'active',
+  COMPLETED = 'completed'
+}
+export interface Task {
+  id: string
+  name: string
+  status: TaskStatus
+  dueDate: string
+  assignee: string
+  projectId: string
 }
 
-export interface Task {
-  id: number
-  name: string
-  assignee: string
-  status: 'todo' | 'in-progress' | 'done'
-  dueDate: string
-  projectId?: number
+export enum TaskStatus {
+  TODO = 'todo',
+  IN_PROGRESS = 'in_progress',
+  DONE = 'done'
 }
 
 export interface Header<T> {
@@ -24,7 +32,6 @@ export interface Header<T> {
   sortable?: boolean
 } 
 
-// Input types for creation (only user-provided fields)
 export interface CreateProjectInput {
   name: string
   description?: string
@@ -32,18 +39,43 @@ export interface CreateProjectInput {
 
 export interface CreateTaskInput {
   name: string
-  assignee: string
-  status: 'todo' | 'in-progress' | 'done'
+  status: TaskStatus
   dueDate: string
-  projectId: number
+  assignee: string
+  projectId: string
 }
 
 export type Model = Record<string, unknown>
 
-// API Response types
+export type ProjectWithCount = Project & { tasksCount: number }
+
+export interface FilterOptions {
+  search?: string
+  status?: string
+  assignee?: string
+}
+
+export interface SortOptions {
+  key: string
+  direction: 'asc' | 'desc'
+}
+
+export interface CreateProjectData {
+  name: string
+  description: string
+}
+
+export interface CreateTaskData {
+  name: string
+  status: TaskStatus
+  dueDate: string
+  assignee: string
+  projectId: string
+}
+
 export interface APIResponse<T> {
   success: boolean
-  content: T
+  content: T | null
   status?: number
   message?: string
 }

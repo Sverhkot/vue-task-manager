@@ -7,61 +7,140 @@
         <h2>{{ currentProject.name }}</h2>
         <div class="project-meta">
           <span class="status" :class="currentProject.status">{{ currentProject.status }}</span>
-          <span class="tasks-count">{{ currentProject.tasksCount }} tasks</span>
+          <span class="tasks-count">{{ tasksCount }} tasks</span>
           <span class="created-date">Created: {{ formatDate(currentProject.createdAt) }}</span>
         </div>
       </div>
     </div>
     
     <div class="tasks-section">
-      <h3>Tasks</h3>
+      <div class="section-header">
+        <h3>Tasks</h3>
+          <button @click="openCreateModal" class="btn btn-primary">
+            Add Task
+          </button>
+      </div>
       
       <div v-if="loading" class="loading">
         <p>Loading project tasks...</p>
       </div>
       
       <div v-else-if="error" class="error">
-        <p>❌ Error loading tasks: {{ error }}</p>
-        <button @click="retryLoading" class="retry-btn">Retry</button>
+        <p>Error loading tasks: {{ error }}</p>
       </div>
       
-      <div v-else-if="tasks.length === 0" class="empty">
+      <div v-else-if="displayTasks.length === 0" class="empty">
         <p>No tasks found for this project</p>
+        <button @click="openCreateModal" class="btn btn-primary">
+          Create First Task
+        </button>
       </div>
       
-      <ProjectsTable
-        v-else
-        v-model:modelValue="tasks"
-        :headers="tasksHeaders"
-        table-type="tasks"
-      />
+      <template v-else>
+        <ProjectsTable
+          :data="tasks"
+          v-model:modelValue="displayTasks"
+          :headers="tasksHeaders"
+          table-type="tasks"
+        />
+        
+        <TaskBoard
+          :tasks="tasks"
+          v-model:modelValue="tasks"
+          @task-move="handleTaskMove"
+          @task-click="handleTaskClick"
+          @edit-task="handleEditTask"
+          @delete-task="handleDeleteTask"
+        />
+      </template>
     </div>
+    
+    <TaskModal
+      :show="showTaskModal"
+      :task="editingTask"
+      :project-id="projectId"
+      :loading="taskLoading"
+      @close="closeTaskModal"
+      @save="handleCreateTask"
+      @update="handleUpdateTask"
+    />
+
+    <AddNewModal
+      :show="showDeleteModal"
+      title="Delete Task"
+      @close="showDeleteModal = false"
+      size="sm"
+    >
+      <p>Are you sure you want to delete this task? This action cannot be undone.</p>
+      
+      <template #footer>
+        <button type="button" class="btn btn-secondary" @click="showDeleteModal = false">
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="btn btn-danger"
+          @click="confirmDeleteTask"
+          :disabled="taskLoading"
+        >
+          {{ taskLoading ? 'Deleting...' : 'Delete Task' }}
+        </button>
+      </template>
+    </AddNewModal>
   </div>
 </template>
 
 <script setup lang="ts">
-import ProjectsTable from '@/components/TableComponent.vue'
-import { useRoute, useRouter } from 'vue-router'
-import { useProjectsStore } from '../stores/projects/index.ts'
 import { storeToRefs } from 'pinia'
-import { onMounted, ref, computed } from 'vue'
-import type { Task } from '@/types/types.ts'
+import { onMounted, ref, computed, watch } from 'vue'
+
+import ProjectsTable from '@/components/TableComponent.vue'
+import AddNewModal from '@/components/modals/AddNewModal.vue'
+import TaskModal from '@/components/modals/TaskModal.vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useProjectsStore } from '../stores/projects.ts'
+import { useTasksStore } from '../stores/tasks.ts'
+import TaskBoard from '@/components/TaskBoard.vue'
+import type { Task, TaskStatus, CreateTaskData } from '../types/types.ts'
 
 const route = useRoute()
 const router = useRouter()
 const projectsStore = useProjectsStore()
+const tasksStore = useTasksStore()
 
 const { projects } = storeToRefs(projectsStore)
 
-const projectId = computed(() => parseInt(route.params.id as string))
+const projectId = computed<string>(() => {
+  const id = route.params.id
+  return Array.isArray(id) ? id[0] : id
+})
 
 const currentProject = computed(() => 
-  projects.value.find(p => p.id === projectId.value)
+  projects.value.find(p => p.id.toString() === projectId.value)
 )
 
 const tasks = ref<Task[]>([])
+
+const tasksCount = computed(() => tasks.value.length)
+
+const loadProjectTasks = async () => {
+  if (!projectId.value) return
+  try {
+    await tasksStore.fetchTasksByProject(projectId.value)
+    tasks.value = tasksStore.getTasksByProjectId(projectId.value)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (err: any) {
+    console.error('Error loading project tasks:', err)
+  }
+}
+
 const loading = ref(false)
 const error = ref<string | null>(null)
+const taskLoading = ref(false)
+const editingTask = ref<Task | null>(null)
+const taskToDelete = ref<Task | null>(null)
+const showTaskModal = ref(false)
+const showDeleteModal = ref(false)
 
 const tasksHeaders = [
   { key: 'id', title: 'ID', width: 60, minWidth: 50, sortable: true },
@@ -71,57 +150,98 @@ const tasksHeaders = [
   { key: 'dueDate', title: 'Due Date', width: 130, minWidth: 120, sortable: true },
 ]
 
-const hasTriedLoading = ref(false)
+const displayTasks = computed(() => tasks.value)
 
-const loadProjectTasks = async () => {
-  if (loading.value) return
-  
-  loading.value = true
-  error.value = null
-  
+watch(
+  () => tasksStore.getTasksByProjectId(projectId.value),
+  (newTasks: Task[]) => {
+    tasks.value = newTasks
+  }
+)
+
+const goBack = () => router.push('/projects')
+const formatDate = (dateString: string) => new Date(dateString).toLocaleDateString()
+
+const openCreateModal = () => {
+  editingTask.value = null
+  showTaskModal.value = true
+}
+const openEditModal = (task: Task) => {
+  editingTask.value = task
+  showTaskModal.value = true
+}
+const closeTaskModal = () => {
+  showTaskModal.value = false
+  editingTask.value = null
+}
+
+async function handleCreateTask(data: CreateTaskData) {
+  taskLoading.value = true
   try {
-    console.log('Loading tasks for project:', projectId.value)
-    
-    const response = await fetch(`http://localhost:3000/projectTasks?projectId=${projectId.value}`)
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`)
-    }
-    
-    const projectTasks = await response.json()
-    console.log('Tasks for this project:', projectTasks)
-    
-    tasks.value = projectTasks
-    
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (err: any) {
-    console.error('Error loading project tasks:', err)
-    error.value = err.message || 'Failed to load project tasks'
+    await tasksStore.createTask(data)
+    await loadProjectTasks()
+    closeTaskModal()
+  } catch (err) {
+    console.error('Failed to create task:', err)
   } finally {
-    loading.value = false
+    taskLoading.value = false
   }
 }
 
-const retryLoading = () => {
-  hasTriedLoading.value = false
-  loadProjectTasks()
+async function handleUpdateTask(id: string, data: Partial<Task>) {
+  taskLoading.value = true
+  try {
+    await tasksStore.updateTask(id, data)
+    await loadProjectTasks()
+    closeTaskModal()
+  } catch (err) {
+    console.error('Failed to update task:', err)
+  } finally {
+    taskLoading.value = false
+  }
 }
 
-const goBack = () => {
-  router.push('/projects')
+async function handleTaskMove(payload: { taskId: string; newStatus: TaskStatus; newIndex: string }) {
+  try {
+    await tasksStore.updateTaskStatus(payload.taskId, payload.newStatus)
+    await loadProjectTasks()
+  } catch (err) {
+    console.error('Failed to update task status:', err)
+  }
 }
 
-const formatDate = (dateString: string) => {
-  return new Date(dateString).toLocaleDateString()
+function handleTaskClick(task: Task) {
+  openEditModal(task)
+}
+
+function handleEditTask(task: Task) {
+  openEditModal(task)
+}
+
+function handleDeleteTask(task: Task) {
+  taskToDelete.value = task
+  showDeleteModal.value = true
+}
+
+async function confirmDeleteTask() {
+  if (!taskToDelete.value) return
+  taskLoading.value = true
+  try {
+    await tasksStore.deleteTask(taskToDelete.value.id)
+    await loadProjectTasks()
+    showDeleteModal.value = false
+    taskToDelete.value = null
+  } catch (err) {
+    console.error('Failed to delete task:', err)
+  } finally {
+    taskLoading.value = false
+  }
 }
 
 onMounted(async () => {
   if (projects.value.length === 0) {
     await projectsStore.dispatchGetProjects()
   }
-  
-  if (hasTriedLoading.value) return
-  hasTriedLoading.value = true
   await loadProjectTasks()
 })
 </script>
@@ -142,6 +262,7 @@ onMounted(async () => {
     cursor: pointer;
     margin-bottom: 16px;
     font-size: 14px;
+    transition: background-color 0.2s;
     
     &:hover {
       background: #f1f5f9;
@@ -175,15 +296,26 @@ onMounted(async () => {
       padding: 4px 12px;
       border-radius: 20px;
       font-weight: 500;
+      text-transform: capitalize;
       
       &.active {
         background: #dcfce7;
         color: #166534;
       }
       
-      &.archived {
+      &.archived, &.completed {
         background: #f3f4f6;
         color: #374151;
+      }
+      
+      &.on_hold {
+        background: #fef3c7;
+        color: #92400e;
+      }
+      
+      &.cancelled {
+        background: #fecaca;
+        color: #dc2626;
       }
     }
     
@@ -199,9 +331,42 @@ onMounted(async () => {
 }
 
 .tasks-section {
-  h3 {
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 20px;
-    color: #1f2937;
+    
+    h3 {
+      margin: 0;
+      color: #1f2937;
+    }
+    
+    .view-controls {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    
+    .view-btn {
+      padding: 6px 12px;
+      border: 1px solid #e5e7eb;
+      background: white;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s;
+      
+      &:hover {
+        background: #f9fafb;
+      }
+      
+      &.active {
+        background: #3b82f6;
+        color: white;
+        border-color: #3b82f6;
+      }
+    }
   }
 }
 
@@ -228,6 +393,7 @@ onMounted(async () => {
     border: none;
     border-radius: 4px;
     cursor: pointer;
+    transition: background-color 0.2s;
     
     &:hover {
       background: #b91c1c;
@@ -241,5 +407,47 @@ onMounted(async () => {
 
 .empty {
   color: #6b7280;
+}
+
+.btn {
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  &.btn-primary {
+    background: #3b82f6;
+    color: white;
+    
+    &:hover:not(:disabled) {
+      background: #2563eb;
+    }
+  }
+  
+  &.btn-secondary {
+    background: #6b7280;
+    color: white;
+    
+    &:hover:not(:disabled) {
+      background: #4b5563;
+    }
+  }
+  
+  &.btn-danger {
+    background: #dc2626;
+    color: white;
+    
+    &:hover:not(:disabled) {
+      background: #b91c1c;
+    }
+  }
 }
 </style>

@@ -1,5 +1,5 @@
 export interface APIResponse<T> {
   success: boolean
-  content: T
+  content?: T 
   status?: number
 }

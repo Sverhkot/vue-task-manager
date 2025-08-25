@@ -17,20 +17,23 @@
     
     <ProjectsTable
       v-else
-      v-model:modelValue="projects"
+      v-model:modelValue="draggableProjects"
       :headers="projectsHeaders"
       table-type="projects"
+      @row-reorder="handleReorder"
     />
     <AddButtonComponent/>
   </div>
 </template>
 
 <script setup lang="ts">
-import ProjectsTable from '@/components/TableComponent.vue'
-import { useProjectsStore } from '../stores/projects/index.ts'
-import AddButtonComponent from '@/components/ui/AddButtonComponent.vue';
 import { storeToRefs } from 'pinia'
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue'
+
+import ProjectsTable from '@/components/TableComponent.vue'
+import { useProjectsStore } from '@/stores/projects.ts'
+import AddButtonComponent from '@/components/ui/AddButtonComponent.vue'
+import type { Project } from '@/types/types.ts'
 
 const projectsStore = useProjectsStore()
 
@@ -43,6 +46,21 @@ const projectsHeaders = [
   { key: 'status', title: 'Status', width: 120, minWidth: 100, sortable: true },
   { key: 'createdAt', title: 'Created At', width: 150, minWidth: 120, sortable: true },
 ]
+
+const draggableProjects = ref<Project[]>([])
+
+watch(
+  () => projectsStore.projectsWithCounts,
+  function (newVal) {
+    draggableProjects.value = newVal.slice();
+  },
+  { immediate: true }
+)
+
+const handleReorder = () => {
+  const ids = draggableProjects.value.map(p => p.id)
+  projects.value.sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id))
+}
 
 const hasTriedLoading = ref(false)
 

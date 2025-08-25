@@ -92,7 +92,6 @@ watch(() => props.show, (show) => {
   border-radius: 8px;
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   max-height: 90vh;
-  overflow: hidden;
   display: flex;
   flex-direction: column;
   
@@ -148,8 +147,6 @@ watch(() => props.show, (show) => {
 
 .modal-body {
   padding: 1.5rem;
-  overflow-y: auto;
-  flex: 1;
 }
 
 .modal-footer {

@@ -1,8 +1,8 @@
 <script setup lang="ts">
   import { ref } from 'vue'
-  import AddNewModal from './AddNewModal.vue'
+  import AddNewModal from '../modals/AddNewModal.vue'
   import type { CreateProjectInput } from '@/types/types'
-  import { useProjectsStore } from '@/stores/projects'
+  import { useProjectsStore } from '@/stores/projects.ts'
 
   const projectsStore = useProjectsStore()
 
