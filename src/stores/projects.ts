@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { toast } from 'vue3-toastify'
 
-import { 
+import {
   type Task,
   type Project,
   type SortOptions,
@@ -11,7 +11,7 @@ import {
   type CreateProjectData,
   type CreateProjectInput,
   type ProjectWithCount,
-  ProjectStatus
+  ProjectStatus,
 } from '@/types/types'
 import { projectsApi } from '@/services/api'
 import { useTasksStore } from '@/stores/tasks'
@@ -24,14 +24,14 @@ export const useProjectsStore = defineStore('projects', () => {
   const tasksStore = useTasksStore()
 
   const projectsWithCounts = computed<ProjectWithCount[]>(() =>
-  projects.value.map(project => ({
-    ...project,
-    tasksCount: tasksStore.tasks.filter((t: Task) => t.projectId === project.id).length
-  }))
-)
+    projects.value.map((project) => ({
+      ...project,
+      tasksCount: tasksStore.tasks.filter((t: Task) => t.projectId === project.id).length,
+    }))
+  )
 
   const getProjectById = (id: string) => {
-    return projects.value.find(project => project.id === id)
+    return projects.value.find((project) => project.id === id)
   }
 
   async function addNewProject(input: CreateProjectInput): Promise<APIResponse<Project>> {
@@ -44,16 +44,16 @@ export const useProjectsStore = defineStore('projects', () => {
         name: input.name.trim(),
         description: input.description?.trim(),
         status: ProjectStatus.ACTIVE,
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
       }
 
       try {
         const response = await fetch('http://localhost:3000/projects', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
           },
-          body: JSON.stringify(newProject)
+          body: JSON.stringify(newProject),
         })
 
         if (response.ok) {
@@ -63,7 +63,7 @@ export const useProjectsStore = defineStore('projects', () => {
           return {
             success: true,
             content: createdProject,
-            status: response.status
+            status: response.status,
           }
         } else {
           throw new Error(`HTTP error! status: ${response.status}`)
@@ -74,22 +74,22 @@ export const useProjectsStore = defineStore('projects', () => {
         projects.value.push(newProject)
         toast.success(`Project "${newProject.name}" created locally!`)
         return {
-            success: false,
-            status: 400,
-            content: null,
-          message: 'Added locally (API unavailable)'
+          success: false,
+          status: 400,
+          content: null,
+          message: 'Added locally (API unavailable)',
         }
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to create project'
       error.value = errorMessage
       toast.error(`Failed to create project: ${errorMessage}`)
-      
+
       return {
         success: false,
         content: {} as Project,
         status: 500,
-        message: errorMessage
+        message: errorMessage,
       }
     } finally {
       loading.value = false
@@ -102,28 +102,28 @@ export const useProjectsStore = defineStore('projects', () => {
 
     try {
       const response = await fetch('http://localhost:3000/projects')
-      
+
       if (response.ok) {
         const data = await response.json()
         projects.value = Array.isArray(data) ? data : []
         return {
           success: true,
           content: projects.value,
-          status: response.status
+          status: response.status,
         }
       } else {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
     } catch (err) {
       console.warn('Failed to fetch from API, using mock data:', err)
-      
+
       error.value = null
-      
+
       return {
         success: true,
         content: projects.value,
         status: 200,
-        message: 'Using mock data (API unavailable)'
+        message: 'Using mock data (API unavailable)',
       }
     } finally {
       loading.value = false
@@ -136,14 +136,15 @@ export const useProjectsStore = defineStore('projects', () => {
 
       if (filters.search) {
         const searchLower = filters.search.toLowerCase()
-        result = result.filter(project => 
-          project.name.toLowerCase().includes(searchLower) ||
-          project.description?.toLowerCase().includes(searchLower)
+        result = result.filter(
+          (project) =>
+            project.name.toLowerCase().includes(searchLower) ||
+            project.description?.toLowerCase().includes(searchLower)
         )
       }
 
       if (filters.status) {
-        result = result.filter(project => project.status === filters.status)
+        result = result.filter((project) => project.status === filters.status)
       }
 
       if (sort) {
@@ -177,7 +178,7 @@ export const useProjectsStore = defineStore('projects', () => {
     try {
       const data = await projectsApi.getAll()
       projects.value = data
-      
+
       saveToLocalStorage()
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Failed to fetch projects'
@@ -211,7 +212,7 @@ export const useProjectsStore = defineStore('projects', () => {
     error.value = null
     try {
       const updatedProject = await projectsApi.update(id, data)
-      const index = projects.value.findIndex(p => p.id === id)
+      const index = projects.value.findIndex((p) => p.id === id)
       if (index !== -1) {
         projects.value[index] = updatedProject
       }
@@ -231,15 +232,15 @@ export const useProjectsStore = defineStore('projects', () => {
   async function deleteProject(id: string) {
     loading.value = true
     error.value = null
-    
-    const projectToDelete = projects.value.find(p => p.id === id)
+
+    const projectToDelete = projects.value.find((p) => p.id === id)
     const projectName = projectToDelete?.name || 'Project'
-    
+
     try {
       await tasksStore.deleteTasksByProjectId(id)
-      
+
       await projectsApi.delete(id)
-      projects.value = projects.value.filter(p => p.id !== id)
+      projects.value = projects.value.filter((p) => p.id !== id)
       saveToLocalStorage()
       toast.success(`Project "${projectName}" and all its tasks deleted successfully!`)
     } catch (err) {
@@ -287,6 +288,6 @@ export const useProjectsStore = defineStore('projects', () => {
     getProjectById,
     saveToLocalStorage,
     fetchAllProjects,
-    loadFromLocalStorage
+    loadFromLocalStorage,
   }
 })

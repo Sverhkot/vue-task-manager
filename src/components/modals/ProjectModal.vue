@@ -9,7 +9,7 @@
       <div v-if="errors.general" class="error-banner">
         {{ errors.general }}
       </div>
-      
+
       <div class="form-group">
         <label for="projectName" class="form-label">Project Name *</label>
         <input
@@ -17,7 +17,7 @@
           v-model="form.name"
           type="text"
           class="form-input"
-          :class="{ 'error': errors.name }"
+          :class="{ error: errors.name }"
           placeholder="Enter project name"
           required
         />
@@ -37,11 +37,7 @@
 
       <div class="form-group" v-if="isEdit">
         <label for="projectStatus" class="form-label">Status</label>
-        <select
-          id="projectStatus"
-          v-model="form.status"
-          class="form-select"
-        >
+        <select id="projectStatus" v-model="form.status" class="form-select">
           <option :value="ProjectStatus.ACTIVE">Active</option>
           <option :value="ProjectStatus.ARCHIVED">Archived</option>
         </select>
@@ -58,7 +54,7 @@
         @click="handleSubmit"
         :disabled="loading || !isFormValid"
       >
-        {{ loading ? 'Saving...' : (isEdit ? 'Update Project' : 'Create Project') }}
+        {{ loading ? 'Saving...' : isEdit ? 'Update Project' : 'Create Project' }}
       </button>
     </template>
   </AddNewModal>
@@ -85,7 +81,7 @@ interface Emits {
 
 const props = withDefaults(defineProps<Props>(), {
   project: null,
-  loading: false
+  loading: false,
 })
 
 const emit = defineEmits<Emits>()
@@ -99,7 +95,7 @@ const form = ref<{
 }>({
   name: '',
   description: '',
-  status: ProjectStatus.ACTIVE
+  status: ProjectStatus.ACTIVE,
 })
 
 const errors = ref<Record<string, string>>({})
@@ -114,7 +110,7 @@ const resetForm = () => {
   form.value = {
     name: '',
     description: '',
-    status: ProjectStatus.ACTIVE
+    status: ProjectStatus.ACTIVE,
   }
   errors.value = {}
 }
@@ -123,7 +119,7 @@ const populateForm = (project: Project) => {
   form.value = {
     name: project.name,
     description: project.description || '',
-    status: project.status
+    status: project.status,
   }
 }
 
@@ -136,11 +132,12 @@ const validateForm = () => {
   }
 
   const trimmedName = form.value.name.trim()
-  const existingProject = projectsStore.projects.find(project => 
-    project.name.toLowerCase() === trimmedName.toLowerCase() &&
-    (!isEdit.value || project.id !== props.project?.id)
+  const existingProject = projectsStore.projects.find(
+    (project) =>
+      project.name.toLowerCase() === trimmedName.toLowerCase() &&
+      (!isEdit.value || project.id !== props.project?.id)
   )
-  
+
   if (existingProject) {
     errors.value.name = 'A project with this name already exists'
     return false
@@ -155,7 +152,7 @@ const handleSubmit = () => {
   const projectData = {
     name: form.value.name.trim(),
     description: form.value.description.trim() || undefined,
-    ...(isEdit.value && { status: form.value.status })
+    ...(isEdit.value && { status: form.value.status }),
   }
 
   if (isEdit.value && props.project) {
@@ -163,7 +160,7 @@ const handleSubmit = () => {
   } else {
     emit('save', {
       name: projectData.name,
-      description: projectData.description
+      description: projectData.description,
     })
   }
 }
@@ -175,48 +172,58 @@ const handleClose = () => {
   }
 }
 
-watch(() => props.show, (newValue) => {
-  if (newValue) {
-    if (props.project) {
-      populateForm(props.project)
-    } else {
-      resetForm()
+watch(
+  () => props.show,
+  (newValue) => {
+    if (newValue) {
+      if (props.project) {
+        populateForm(props.project)
+      } else {
+        resetForm()
+      }
     }
   }
-})
+)
 
-watch(() => props.project, (newProject) => {
-  if (newProject && props.show) {
-    populateForm(newProject)
-  }
-})
-
-watch(() => form.value.name, () => {
-  if (form.value.name.trim() && errors.value.name) {
-    delete errors.value.name
-    
-    const trimmedName = form.value.name.trim()
-    const existingProject = projectsStore.projects.find(project => 
-      project.name.toLowerCase() === trimmedName.toLowerCase() &&
-      (!isEdit.value || project.id !== props.project?.id)
-    )
-    
-    if (existingProject) {
-      errors.value.name = 'A project with this name already exists'
+watch(
+  () => props.project,
+  (newProject) => {
+    if (newProject && props.show) {
+      populateForm(newProject)
     }
   }
-})
+)
+
+watch(
+  () => form.value.name,
+  () => {
+    if (form.value.name.trim() && errors.value.name) {
+      delete errors.value.name
+
+      const trimmedName = form.value.name.trim()
+      const existingProject = projectsStore.projects.find(
+        (project) =>
+          project.name.toLowerCase() === trimmedName.toLowerCase() &&
+          (!isEdit.value || project.id !== props.project?.id)
+      )
+
+      if (existingProject) {
+        errors.value.name = 'A project with this name already exists'
+      }
+    }
+  }
+)
 </script>
 
 <style scoped lang="scss">
 .project-form {
   .form-group {
     margin-bottom: 1.5rem;
-    
+
     &:last-child {
       margin-bottom: 0;
     }
-    
+
     .form-label {
       display: block;
       margin-bottom: 0.5rem;
@@ -224,7 +231,7 @@ watch(() => form.value.name, () => {
       color: #374151;
       font-size: 0.875rem;
     }
-    
+
     .form-input,
     .form-textarea,
     .form-select {
@@ -235,36 +242,36 @@ watch(() => form.value.name, () => {
       font-size: 0.875rem;
       transition: all 0.2s;
       background: white;
-      
+
       &:focus {
         outline: none;
         border-color: #3b82f6;
         box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
       }
-      
+
       &.error {
         border-color: #dc2626;
         box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
       }
-      
+
       &::placeholder {
         color: #9ca3af;
       }
     }
-    
+
     .form-textarea {
       resize: vertical;
       min-height: 100px;
     }
-    
+
     .form-select {
       cursor: pointer;
-      
+
       option {
         padding: 0.5rem;
       }
     }
-    
+
     .error-message {
       display: block;
       margin-top: 0.5rem;
@@ -297,31 +304,31 @@ watch(() => form.value.name, () => {
   align-items: center;
   justify-content: center;
   min-width: 100px;
-  
+
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
     transform: none;
   }
-  
+
   &:not(:disabled):hover {
     transform: translateY(-1px);
   }
-  
+
   &.btn-primary {
     background: #3b82f6;
     color: white;
-    
+
     &:hover:not(:disabled) {
       background: #2563eb;
       box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
     }
   }
-  
+
   &.btn-secondary {
     background: #6b7280;
     color: white;
-    
+
     &:hover:not(:disabled) {
       background: #4b5563;
       box-shadow: 0 4px 12px rgba(107, 114, 128, 0.4);

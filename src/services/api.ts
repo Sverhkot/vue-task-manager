@@ -1,11 +1,11 @@
 import axios from 'axios'
 
-import { 
-  ProjectStatus, 
+import {
+  ProjectStatus,
   type Task,
-  type Project, 
-  type CreateTaskData, 
-  type CreateProjectData
+  type Project,
+  type CreateTaskData,
+  type CreateProjectData,
 } from '@/types/types'
 
 const instance = axios.create({
@@ -28,7 +28,7 @@ export const projectsApi = {
     const newProject: Omit<Project, 'id'> = {
       ...data,
       status: ProjectStatus.ACTIVE,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
     }
     const response = await instance.post<Project>('/projects', newProject)
     return response.data
@@ -41,7 +41,7 @@ export const projectsApi = {
 
   async delete(id: string): Promise<void> {
     await instance.delete(`/projects/${id}`)
-  }
+  },
 }
 
 export const tasksApi = {
@@ -75,7 +75,7 @@ export const tasksApi = {
 
   async delete(id: string): Promise<void> {
     await instance.delete(`/tasks/${id}`)
-  }
+  },
 }
 
 export default instance

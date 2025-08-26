@@ -13,7 +13,7 @@
           v-model="form.name"
           type="text"
           class="form-input"
-          :class="{ 'error': errors.name }"
+          :class="{ error: errors.name }"
           placeholder="Enter task name"
           required
         />
@@ -27,7 +27,7 @@
             id="taskAssignee"
             v-model="form.assignee"
             class="form-select"
-            :class="{ 'error': errors.assignee }"
+            :class="{ error: errors.assignee }"
             required
           >
             <option value="">Select assignee</option>
@@ -40,11 +40,7 @@
 
         <div class="form-group">
           <label for="taskStatus" class="form-label">Status</label>
-          <select
-            id="taskStatus"
-            v-model="form.status"
-            class="form-select"
-          >
+          <select id="taskStatus" v-model="form.status" class="form-select">
             <option value="To Do">To Do</option>
             <option value="In Progress">In Progress</option>
             <option value="Done">Done</option>
@@ -59,7 +55,7 @@
           v-model="form.dueDate"
           type="date"
           class="form-input"
-          :class="{ 'error': errors.dueDate }"
+          :class="{ error: errors.dueDate }"
           required
         />
         <span v-if="errors.dueDate" class="error-message">{{ errors.dueDate }}</span>
@@ -76,7 +72,7 @@
         @click="handleSubmit"
         :disabled="loading || !isFormValid"
       >
-        {{ loading ? 'Saving...' : (isEdit ? 'Update Task' : 'Create Task') }}
+        {{ loading ? 'Saving...' : isEdit ? 'Update Task' : 'Create Task' }}
       </button>
     </template>
   </AddNewModal>
@@ -104,7 +100,7 @@ interface Emits {
 
 const props = withDefaults(defineProps<Props>(), {
   task: null,
-  loading: false
+  loading: false,
 })
 
 const emit = defineEmits<Emits>()
@@ -118,7 +114,7 @@ const availableAssignees = [
   'Alice Brown',
   'Mike Wilson',
   'Sarah Davis',
-  'Tom Anderson'
+  'Tom Anderson',
 ]
 
 const form = ref<{
@@ -130,7 +126,7 @@ const form = ref<{
   name: '',
   assignee: '',
   status: TaskStatus.TODO,
-  dueDate: ''
+  dueDate: '',
 })
 
 const errors = ref<Record<string, string>>({})
@@ -138,9 +134,7 @@ const errors = ref<Record<string, string>>({})
 const isEdit = computed(() => !!props.task)
 
 const isFormValid = computed(() => {
-  return form.value.name.trim() && 
-         form.value.assignee && 
-         form.value.dueDate
+  return form.value.name.trim() && form.value.assignee && form.value.dueDate
 })
 
 const resetForm = () => {
@@ -148,7 +142,7 @@ const resetForm = () => {
     name: '',
     assignee: '',
     status: TaskStatus.TODO,
-    dueDate: ''
+    dueDate: '',
   }
   errors.value = {}
 }
@@ -158,7 +152,7 @@ const populateForm = (task: Task) => {
     name: task.name,
     assignee: task.assignee,
     status: task.status,
-    dueDate: task.dueDate.split('T')[0]
+    dueDate: task.dueDate.split('T')[0],
   }
 }
 
@@ -170,12 +164,13 @@ const validateForm = () => {
   } else {
     const projectTasks = tasksStore.getTasksByProjectId(props.projectId)
     const trimmedName = form.value.name.trim()
-    
-    const existingTask = projectTasks.find(task => 
-      task.name.toLowerCase() === trimmedName.toLowerCase() && 
-      (!isEdit.value || task.id !== props.task?.id)
+
+    const existingTask = projectTasks.find(
+      (task) =>
+        task.name.toLowerCase() === trimmedName.toLowerCase() &&
+        (!isEdit.value || task.id !== props.task?.id)
     )
-    
+
     if (existingTask) {
       errors.value.name = 'A task with this name already exists in this project'
     }
@@ -193,7 +188,7 @@ const validateForm = () => {
     const selectedDate = new Date(form.value.dueDate)
     const today = new Date()
     today.setHours(0, 0, 0, 0)
-    
+
     if (selectedDate < today) {
       errors.value.dueDate = 'Due date cannot be in the past'
     }
@@ -210,7 +205,7 @@ const handleSubmit = () => {
     assignee: form.value.assignee,
     status: form.value.status,
     dueDate: new Date(form.value.dueDate).toISOString(),
-    projectId: props.projectId
+    projectId: props.projectId,
   }
 
   if (isEdit.value && props.task) {
@@ -218,7 +213,7 @@ const handleSubmit = () => {
   } else {
     emit('save', {
       ...taskData,
-      projectId: props.projectId.toString()
+      projectId: props.projectId.toString(),
     })
   }
 }
@@ -230,53 +225,66 @@ const handleClose = () => {
   }
 }
 
-watch(() => props.show, (newValue) => {
-  if (newValue) {
-    if (props.task) {
-      populateForm(props.task)
-    } else {
-      resetForm()
+watch(
+  () => props.show,
+  (newValue) => {
+    if (newValue) {
+      if (props.task) {
+        populateForm(props.task)
+      } else {
+        resetForm()
+      }
     }
   }
-})
+)
 
-watch(() => props.task, (newTask) => {
-  if (newTask && props.show) {
-    populateForm(newTask)
-  }
-})
-
-watch(() => form.value.name, () => {
-  if (form.value.name.trim() && errors.value.name) {
-    delete errors.value.name
-    
-    const projectTasks = tasksStore.getTasksByProjectId(props.projectId)
-    const trimmedName = form.value.name.trim()
-    
-    const existingTask = projectTasks.find(task => 
-      task.name.toLowerCase() === trimmedName.toLowerCase() && 
-      (!isEdit.value || task.id !== props.task?.id)
-    )
-    
-    if (existingTask) {
-      errors.value.name = 'A task with this name already exists in this project'
+watch(
+  () => props.task,
+  (newTask) => {
+    if (newTask && props.show) {
+      populateForm(newTask)
     }
   }
-})
+)
 
-watch(() => form.value.dueDate, () => {
-  if (form.value.dueDate && errors.value.dueDate) {
-    delete errors.value.dueDate
-    
-    const selectedDate = new Date(form.value.dueDate)
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-    
-    if (selectedDate < today) {
-      errors.value.dueDate = 'Due date cannot be in the past'
+watch(
+  () => form.value.name,
+  () => {
+    if (form.value.name.trim() && errors.value.name) {
+      delete errors.value.name
+
+      const projectTasks = tasksStore.getTasksByProjectId(props.projectId)
+      const trimmedName = form.value.name.trim()
+
+      const existingTask = projectTasks.find(
+        (task) =>
+          task.name.toLowerCase() === trimmedName.toLowerCase() &&
+          (!isEdit.value || task.id !== props.task?.id)
+      )
+
+      if (existingTask) {
+        errors.value.name = 'A task with this name already exists in this project'
+      }
     }
   }
-})
+)
+
+watch(
+  () => form.value.dueDate,
+  () => {
+    if (form.value.dueDate && errors.value.dueDate) {
+      delete errors.value.dueDate
+
+      const selectedDate = new Date(form.value.dueDate)
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+
+      if (selectedDate < today) {
+        errors.value.dueDate = 'Due date cannot be in the past'
+      }
+    }
+  }
+)
 </script>
 
 <style scoped lang="scss">
@@ -287,7 +295,7 @@ watch(() => form.value.dueDate, () => {
     &:last-child {
       margin-bottom: 0;
     }
-    
+
     .form-label {
       display: block;
       margin-bottom: 0.5rem;
@@ -295,7 +303,7 @@ watch(() => form.value.dueDate, () => {
       color: #374151;
       font-size: 0.875rem;
     }
-    
+
     .form-input,
     .form-select {
       width: 100%;
@@ -305,31 +313,31 @@ watch(() => form.value.dueDate, () => {
       font-size: 0.875rem;
       transition: all 0.2s;
       background: white;
-      
+
       &:focus {
         outline: none;
         border-color: #3b82f6;
         box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
       }
-      
+
       &.error {
         border-color: #dc2626;
         box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
       }
-      
+
       &::placeholder {
         color: #9ca3af;
       }
     }
-    
+
     .form-select {
       cursor: pointer;
-      
+
       option {
         padding: 0.5rem;
       }
     }
-    
+
     .error-message {
       display: block;
       margin-top: 0.5rem;
@@ -338,12 +346,12 @@ watch(() => form.value.dueDate, () => {
       font-weight: 500;
     }
   }
-  
+
   .form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1rem;
-    
+
     @media (max-width: 640px) {
       grid-template-columns: 1fr;
     }
@@ -362,31 +370,31 @@ watch(() => form.value.dueDate, () => {
   align-items: center;
   justify-content: center;
   min-width: 100px;
-  
+
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
     transform: none;
   }
-  
+
   &:not(:disabled):hover {
     transform: translateY(-1px);
   }
-  
+
   &.btn-primary {
     background: #3b82f6;
     color: white;
-    
+
     &:hover:not(:disabled) {
       background: #2563eb;
       box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
     }
   }
-  
+
   &.btn-secondary {
     background: #6b7280;
     color: white;
-    
+
     &:hover:not(:disabled) {
       background: #4b5563;
       box-shadow: 0 4px 12px rgba(107, 114, 128, 0.4);

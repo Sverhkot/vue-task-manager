@@ -6,7 +6,14 @@
           <div class="modal-header">
             <h3 class="modal-title">{{ title }}</h3>
             <button class="modal-close" @click="$emit('close')" aria-label="Close modal">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>
               </svg>
@@ -40,7 +47,7 @@ interface Emits {
 
 const props = withDefaults(defineProps<Props>(), {
   size: 'md',
-  closeOnOverlay: true
+  closeOnOverlay: true,
 })
 
 const emit = defineEmits<Emits>()
@@ -59,15 +66,18 @@ function handleEscape(event: KeyboardEvent) {
   }
 }
 
-watch(() => props.show, (show) => {
-  if (show) {
-    document.addEventListener('keydown', handleEscape)
-    document.body.style.overflow = 'hidden'
-  } else {
-    document.removeEventListener('keydown', handleEscape)
-    document.body.style.overflow = ''
+watch(
+  () => props.show,
+  (show) => {
+    if (show) {
+      document.addEventListener('keydown', handleEscape)
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.removeEventListener('keydown', handleEscape)
+      document.body.style.overflow = ''
+    }
   }
-})
+)
 </script>
 
 <style lang="scss" scoped>
@@ -91,23 +101,25 @@ watch(() => props.show, (show) => {
   max-height: 90vh;
   background: white;
   border-radius: 8px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
   &.modal-sm {
     width: 100%;
     max-width: 400px;
   }
-  
+
   &.modal-md {
     width: 100%;
     max-width: 500px;
   }
-  
+
   &.modal-lg {
     width: 100%;
     max-width: 700px;
   }
-  
+
   &.modal-xl {
     width: 100%;
     max-width: 900px;
@@ -136,7 +148,7 @@ watch(() => props.show, (show) => {
   padding: 0.25rem;
   color: #6b7280;
   border-radius: 4px;
-  
+
   &:hover {
     color: #374151;
     background: #f3f4f6;

@@ -1,4 +1,4 @@
-import http from "@/services/api"
+import http from '@/services/api'
 
 export interface ProjectTask {
   id: string
@@ -11,22 +11,22 @@ export interface ProjectTask {
 
 export async function getProjectTasks(projectId: string) {
   const response = await http.get<ProjectTask[]>(`projectTasks?projectId=${projectId}`)
-  
+
   return {
     status: response.status,
     data: {
-      content: response.data
-    }
+      content: response.data,
+    },
   }
 }
 
 export async function getAllTasks() {
-  const response = await http.get<ProjectTask[]>("projectTasks")
-  
+  const response = await http.get<ProjectTask[]>('projectTasks')
+
   return {
     status: response.status,
     data: {
-      content: response.data
-    }
+      content: response.data,
+    },
   }
 }

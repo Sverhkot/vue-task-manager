@@ -50,7 +50,7 @@
       "id": "65c6",
       "name": "Create wireframes",
       "assignee": "John Doe",
-      "status": "Done",
+      "status": "In Progress",
       "dueDate": "2025-08-27T00:00:00.000Z",
       "projectId": "1756239252058"
     },
@@ -58,7 +58,7 @@
       "id": "bb52",
       "name": "Design homepage",
       "assignee": "Jane Smith",
-      "status": "In Progress",
+      "status": "Done",
       "dueDate": "2025-09-02T00:00:00.000Z",
       "projectId": "1756239252058"
     },

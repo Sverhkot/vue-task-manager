@@ -7,7 +7,7 @@ export interface Project {
 }
 export enum ProjectStatus {
   ACTIVE = 'Active',
-  ARCHIVED = 'Archived'
+  ARCHIVED = 'Archived',
 }
 export interface Task {
   id: string
@@ -21,7 +21,7 @@ export interface Task {
 export enum TaskStatus {
   TODO = 'To Do',
   IN_PROGRESS = 'In Progress',
-  DONE = 'Done'
+  DONE = 'Done',
 }
 
 export interface Header<T> {
@@ -30,7 +30,7 @@ export interface Header<T> {
   width?: number
   minWidth?: number
   sortable?: boolean
-} 
+}
 
 export interface CreateProjectInput {
   name: string

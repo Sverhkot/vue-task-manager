@@ -12,30 +12,26 @@
         </div>
       </div>
     </div>
-    
+
     <div class="tasks-section">
       <div class="section-header">
         <h3>Tasks</h3>
-          <button @click="openCreateModal" class="btn btn-primary">
-            Add Task
-          </button>
+        <button @click="openCreateModal" class="btn btn-primary">Add Task</button>
       </div>
-      
+
       <div v-if="loading" class="loading">
         <p>Loading project tasks...</p>
       </div>
-      
+
       <div v-else-if="error" class="error">
         <p>Error loading tasks: {{ error }}</p>
       </div>
-      
+
       <div v-else-if="displayTasks.length === 0" class="empty">
         <p>No tasks found for this project</p>
-        <button @click="openCreateModal" class="btn btn-primary">
-          Create First Task
-        </button>
+        <button @click="openCreateModal" class="btn btn-primary">Create First Task</button>
       </div>
-      
+
       <template v-else>
         <TaskTable
           :data="tasks"
@@ -46,7 +42,7 @@
           @edit-task="handleEditTask"
           @delete-task="handleDeleteTask"
         />
-        
+
         <TaskBoard
           :tasks="tasks"
           v-model:modelValue="tasks"
@@ -57,7 +53,7 @@
         />
       </template>
     </div>
-    
+
     <TaskModal
       :show="showTaskModal"
       :task="editingTask"
@@ -75,7 +71,7 @@
       size="sm"
     >
       <p>Are you sure you want to delete this task? This action cannot be undone.</p>
-      
+
       <template #footer>
         <button type="button" class="btn btn-secondary" @click="showDeleteModal = false">
           Cancel
@@ -118,8 +114,8 @@ const projectId = computed<string>(() => {
   return Array.isArray(id) ? id[0] : id
 })
 
-const currentProject = computed(() => 
-  projects.value.find(p => p.id.toString() === projectId.value)
+const currentProject = computed(() =>
+  projects.value.find((p) => p.id.toString() === projectId.value)
 )
 
 const loading = ref(false)
@@ -165,7 +161,7 @@ watch(
 )
 
 const handleReorder = () => {
-  const ids = draggableTasks.value.map(p => p.id)
+  const ids = draggableTasks.value.map((p) => p.id)
   projects.value.sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id))
 }
 
@@ -201,7 +197,11 @@ async function handleUpdateTask(id: string, data: Partial<Task>) {
   taskLoading.value = false
 }
 
-async function handleTaskMove(payload: { taskId: string; newStatus: TaskStatus; newIndex: string }) {
+async function handleTaskMove(payload: {
+  taskId: string
+  newStatus: TaskStatus
+  newIndex: string
+}) {
   await tasksStore.updateTaskStatus(payload.taskId, payload.newStatus)
   await loadProjectTasks()
 }
@@ -244,7 +244,7 @@ onMounted(async () => {
 
 .project-header {
   margin-bottom: 30px;
-  
+
   .back-btn {
     background: #f8fafc;
     border: 1px solid #e2e8f0;
@@ -254,12 +254,12 @@ onMounted(async () => {
     margin-bottom: 16px;
     font-size: 14px;
     transition: background-color 0.2s;
-    
+
     &:hover {
       background: #f1f5f9;
     }
   }
-  
+
   h1 {
     margin: 0 0 16px 0;
     color: #1f2937;
@@ -271,50 +271,51 @@ onMounted(async () => {
   padding: 20px;
   border-radius: 8px;
   border: 1px solid #e2e8f0;
-  
+
   h2 {
     margin: 0 0 12px 0;
     color: #1f2937;
   }
-  
+
   .project-meta {
     display: flex;
     gap: 16px;
     align-items: center;
     font-size: 14px;
-    
+
     .status {
       padding: 4px 12px;
       border-radius: 20px;
       font-weight: 500;
       text-transform: capitalize;
-      
+
       &.active {
         background: #dcfce7;
         color: #166534;
       }
-      
-      &.archived, &.completed {
+
+      &.archived,
+      &.completed {
         background: #f3f4f6;
         color: #374151;
       }
-      
+
       &.on_hold {
         background: #fef3c7;
         color: #92400e;
       }
-      
+
       &.cancelled {
         background: #fecaca;
         color: #dc2626;
       }
     }
-    
+
     .tasks-count {
       color: #6b7280;
       font-weight: 500;
     }
-    
+
     .created-date {
       color: #6b7280;
     }
@@ -327,18 +328,18 @@ onMounted(async () => {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
-    
+
     h3 {
       margin: 0;
       color: #1f2937;
     }
-    
+
     .view-controls {
       display: flex;
       gap: 8px;
       align-items: center;
     }
-    
+
     .view-btn {
       padding: 6px 12px;
       border: 1px solid #e5e7eb;
@@ -347,11 +348,11 @@ onMounted(async () => {
       cursor: pointer;
       font-size: 14px;
       transition: all 0.2s;
-      
+
       &:hover {
         background: #f9fafb;
       }
-      
+
       &.active {
         background: #3b82f6;
         color: white;
@@ -361,10 +362,12 @@ onMounted(async () => {
   }
 }
 
-.loading, .error, .empty {
+.loading,
+.error,
+.empty {
   text-align: center;
   padding: 40px 20px;
-  
+
   p {
     font-size: 16px;
     margin-bottom: 16px;
@@ -376,7 +379,7 @@ onMounted(async () => {
   background: #fef2f2;
   border: 1px solid #fecaca;
   border-radius: 8px;
-  
+
   .retry-btn {
     background: #dc2626;
     color: white;
@@ -385,7 +388,7 @@ onMounted(async () => {
     border-radius: 4px;
     cursor: pointer;
     transition: background-color 0.2s;
-    
+
     &:hover {
       background: #b91c1c;
     }
@@ -408,34 +411,34 @@ onMounted(async () => {
   cursor: pointer;
   transition: all 0.2s;
   border: none;
-  
+
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
   }
-  
+
   &.btn-primary {
     background: #3b82f6;
     color: white;
-    
+
     &:hover:not(:disabled) {
       background: #2563eb;
     }
   }
-  
+
   &.btn-secondary {
     background: #6b7280;
     color: white;
-    
+
     &:hover:not(:disabled) {
       background: #4b5563;
     }
   }
-  
+
   &.btn-danger {
     background: #dc2626;
     color: white;
-    
+
     &:hover:not(:disabled) {
       background: #b91c1c;
     }

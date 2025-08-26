@@ -1,11 +1,7 @@
 <template>
   <div class="task-board">
     <div class="board-columns">
-      <div
-        v-for="status in taskStatuses"
-        :key="status.value"
-        class="board-column"
-      >
+      <div v-for="status in taskStatuses" :key="status.value" class="board-column">
         <div class="column-header">
           <h3 class="column-title">{{ status.label }}</h3>
           <span class="task-count">{{ getTasksByStatus(status.value).length }}</span>
@@ -31,7 +27,14 @@
                     @click.stop="$emit('edit-task', task)"
                     title="Edit task"
                   >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
                       <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                       <path d="m18.5 2.5 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                     </svg>
@@ -41,25 +44,48 @@
                     @click.stop="$emit('delete-task', task)"
                     title="Delete task"
                   >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
                       <polyline points="3,6 5,6 21,6"></polyline>
-                      <path d="m19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
+                      <path
+                        d="m19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"
+                      ></path>
                     </svg>
                   </button>
                 </div>
               </div>
-              
+
               <div class="task-meta">
                 <div class="task-assignee">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                     <circle cx="12" cy="7" r="4"></circle>
                   </svg>
                   {{ task.assignee }}
                 </div>
-                
+
                 <div class="task-due-date" :class="{ overdue: isOverdue(task.dueDate) }">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
                     <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
                     <line x1="16" y1="2" x2="16" y2="6"></line>
                     <line x1="8" y1="2" x2="8" y2="6"></line>
@@ -71,7 +97,7 @@
             </div>
           </template>
         </draggable>
-        
+
         <div v-if="getTasksByStatus(status.value).length === 0" class="empty-column">
           <p>No tasks</p>
         </div>
@@ -102,13 +128,12 @@ const emit = defineEmits<Emits>()
 const taskStatuses = [
   { value: TaskStatus.TODO, label: 'To Do' },
   { value: TaskStatus.IN_PROGRESS, label: 'In Progress' },
-  { value: TaskStatus.DONE, label: 'Done' }
+  { value: TaskStatus.DONE, label: 'Done' },
 ]
 
 function getTasksByStatus(status: TaskStatus): Task[] {
-  return props.tasks.filter(task => task.status === status)
+  return props.tasks.filter((task) => task.status === status)
 }
-
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function handleTaskMove(event: any, status: TaskStatus) {
@@ -117,16 +142,16 @@ function handleTaskMove(event: any, status: TaskStatus) {
     emit('task-move', {
       taskId: task.id,
       newStatus: status,
-      newIndex: event.added.newIndex
+      newIndex: event.added.newIndex,
     })
   }
 }
 
 function formatDate(dateString: string) {
   const date = new Date(dateString)
-  return date.toLocaleDateString('en-US', { 
-    month: 'short', 
-    day: 'numeric' 
+  return date.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
   })
 }
 
@@ -202,7 +227,7 @@ function isOverdue(dateString: string) {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   cursor: pointer;
   transition: all 0.2s ease;
-  
+
   &:hover {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     transform: translateY(-1px);
@@ -247,12 +272,12 @@ function isOverdue(dateString: string) {
   display: flex;
   align-items: center;
   justify-content: center;
-  
+
   &:hover {
     background: #f1f5f9;
     color: #334155;
   }
-  
+
   &.delete:hover {
     background: #fef2f2;
     color: #dc2626;

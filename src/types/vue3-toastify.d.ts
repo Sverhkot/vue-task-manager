@@ -1,40 +1,36 @@
-declare module "vue3-toastify" {
-  import type { Plugin } from "vue"
+declare module 'vue3-toastify' {
+  import type { Plugin } from 'vue'
 
   export type ToastPosition =
-    | "top-left"
-    | "top-right"
-    | "top-center"
-    | "bottom-left"
-    | "bottom-right"
-    | "bottom-center"
+    | 'top-left'
+    | 'top-right'
+    | 'top-center'
+    | 'bottom-left'
+    | 'bottom-right'
+    | 'bottom-center'
 
-  export type ToastTheme = "light" | "dark" | "colored"
+  export type ToastTheme = 'light' | 'dark' | 'colored'
 
-  export type ToastTransition =
-    | "bounce"
-    | "slide"
-    | "zoom"
-    | "flip"
+  export type ToastTransition = 'bounce' | 'slide' | 'zoom' | 'flip'
 
   export interface ToastContainerOptions {
-    autoClose?: number | false;
-    position?: ToastPosition;
-    hideProgressBar?: boolean;
-    newestOnTop?: boolean;
-    closeOnClick?: boolean;
-    rtl?: boolean;
-    pauseOnFocusLoss?: boolean;
-    draggable?: boolean;
-    pauseOnHover?: boolean;
-    draggablePercent?: number;
-    theme?: ToastTheme;
-    transition?: ToastTransition;
-    limit?: number;
+    autoClose?: number | false
+    position?: ToastPosition
+    hideProgressBar?: boolean
+    newestOnTop?: boolean
+    closeOnClick?: boolean
+    rtl?: boolean
+    pauseOnFocusLoss?: boolean
+    draggable?: boolean
+    pauseOnHover?: boolean
+    draggablePercent?: number
+    theme?: ToastTheme
+    transition?: ToastTransition
+    limit?: number
   }
 
   export interface ToastOptions extends Partial<ToastContainerOptions> {
-    type?: "info" | "success" | "warning" | "error" | "default"
+    type?: 'info' | 'success' | 'warning' | 'error' | 'default'
   }
 
   export interface Toast {

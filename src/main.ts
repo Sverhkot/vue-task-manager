@@ -1,7 +1,6 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
-import Vue3Toastify, 
-{ type ToastContainerOptions } from 'vue3-toastify'
+import Vue3Toastify, { type ToastContainerOptions } from 'vue3-toastify'
 
 import '@/main.ts'
 import App from '@/App.vue'
@@ -18,7 +17,6 @@ app.use(Vue3Toastify, {
   closeOnClick: true,
   pauseOnHover: true,
   draggable: true,
-  theme: 'light'
+  theme: 'light',
 } as ToastContainerOptions)
 app.mount('#app')
-
