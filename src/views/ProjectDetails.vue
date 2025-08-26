@@ -239,9 +239,7 @@ async function confirmDeleteTask() {
 }
 
 onMounted(async () => {
-  if (projects.value.length === 0) {
-    await projectsStore.dispatchGetProjects()
-  }
+  await projectsStore.dispatchGetProjects()
   await loadProjectTasks()
 })
 </script>
