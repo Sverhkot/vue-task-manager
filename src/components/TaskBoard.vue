@@ -10,7 +10,6 @@
           <h3 class="column-title">{{ status.label }}</h3>
           <span class="task-count">{{ getTasksByStatus(status.value).length }}</span>
         </div>
-        
         <draggable
           :list="getTasksByStatus(status.value)"
           :group="{ name: 'tasks', pull: true, put: true }"
@@ -84,7 +83,7 @@
 <script setup lang="ts">
 import draggable from 'vuedraggable'
 
-import { TaskStatus, type Task } from '../types/types'
+import { TaskStatus, type Task } from '@/types/types'
 
 interface Props {
   tasks: Task[]

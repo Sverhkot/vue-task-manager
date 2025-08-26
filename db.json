@@ -1,21 +1,90 @@
 {
   "projects": [
     {
-      "id": "1756223934842",
-      "name": "Project 1",
-      "description": "sda",
+      "id": "1756239252058",
+      "name": "Website Redesign",
+      "description": "test description",
       "status": "Active",
-      "createdAt": "2025-08-26T15:58:54.842Z"
+      "createdAt": "2025-08-26T20:14:12.058Z"
+    },
+    {
+      "id": "1756239504441",
+      "name": "Mobile App Development",
+      "description": "Mobile App Development",
+      "status": "Active",
+      "createdAt": "2025-08-26T20:18:24.441Z"
+    },
+    {
+      "id": "1756239893387",
+      "name": "Test Project",
+      "status": "Archived",
+      "createdAt": "2025-08-26T20:24:53.387Z"
     }
   ],
   "tasks": [
     {
-      "id": "8be5",
-      "name": "task1",
+      "id": "3a89",
+      "name": "Setup React Native project",
       "assignee": "John Doe",
+      "status": "Done",
+      "dueDate": "2025-09-02T00:00:00.000Z",
+      "projectId": "1756239504441"
+    },
+    {
+      "id": "883f",
+      "name": "Implement authentication",
+      "assignee": "Sarah Davis",
       "status": "To Do",
-      "dueDate": "2025-08-28T00:00:00.000Z",
-      "projectId": "1756223934842"
+      "dueDate": "2025-08-29T00:00:00.000Z",
+      "projectId": "1756239504441"
+    },
+    {
+      "id": "6283",
+      "name": "Create user profile screen",
+      "assignee": "Alice Brown",
+      "status": "In Progress",
+      "dueDate": "2025-09-02T00:00:00.000Z",
+      "projectId": "1756239504441"
+    },
+    {
+      "id": "65c6",
+      "name": "Create wireframes",
+      "assignee": "John Doe",
+      "status": "Done",
+      "dueDate": "2025-08-27T00:00:00.000Z",
+      "projectId": "1756239252058"
+    },
+    {
+      "id": "bb52",
+      "name": "Design homepage",
+      "assignee": "Jane Smith",
+      "status": "In Progress",
+      "dueDate": "2025-09-02T00:00:00.000Z",
+      "projectId": "1756239252058"
+    },
+    {
+      "id": "ac85",
+      "name": "Implement responsive layout",
+      "assignee": "Tom Anderson",
+      "status": "To Do",
+      "dueDate": "2025-09-05T00:00:00.000Z",
+      "projectId": "1756239252058"
+    },
+    {
+      "id": "0d67",
+      "name": "Setup contact form",
+      "assignee": "Mike Wilson",
+      "status": "To Do",
+      "dueDate": "2025-08-29T00:00:00.000Z",
+      "projectId": "1756239252058"
+    },
+    {
+      "id": "a10e",
+      "name": "Performance optimization",
+      "assignee": "Sarah Davis",
+      "status": "To Do",
+      "dueDate": "2025-09-04T00:00:00.000Z",
+      "projectId": "1756239252058"
     }
   ]
 }

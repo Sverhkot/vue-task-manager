@@ -1,12 +1,12 @@
 import { createApp } from 'vue'
-import App from './App.vue'
-import router from './router'
 import { createPinia } from 'pinia'
-import './styles/main.scss'
+import Vue3Toastify, 
+{ type ToastContainerOptions } from 'vue3-toastify'
 
-// Import vue3-toastify
-import Vue3Toastify, { type ToastContainerOptions } from 'vue3-toastify'
+import '@/main.ts'
+import App from '@/App.vue'
 import 'vue3-toastify/dist/index.css'
+import router from '@/router/index.ts'
 
 const app = createApp(App)
 app.use(createPinia())

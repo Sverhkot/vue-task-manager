@@ -85,9 +85,9 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 
+import { useTasksStore } from '@/stores/tasks'
 import AddNewModal from '@/components/modals/AddNewModal.vue'
 import { type Task, TaskStatus, type CreateTaskData } from '@/types/types'
-import { useTasksStore } from '@/stores/tasks'
 
 interface Props {
   show: boolean

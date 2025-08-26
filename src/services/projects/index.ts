@@ -1,6 +1,6 @@
-import http from "../api"
-export { getProjectTasks } from './tasks'
-import { type Project, type InputAddProject } from "./types"
+import http from "@/services/api"
+export { getProjectTasks } from '@/services/projects/tasks'
+import { type Project, type InputAddProject } from "@/services/projects/types"
 
 async function getProjects() {
   const response = await http.get<Project[]>("projects")

@@ -67,9 +67,9 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 
+import { useProjectsStore } from '@/stores/projects'
 import AddNewModal from '@/components/modals/AddNewModal.vue'
 import { type Project, type CreateProjectInput, ProjectStatus } from '@/types/types'
-import { useProjectsStore } from '@/stores/projects'
 
 interface Props {
   show: boolean

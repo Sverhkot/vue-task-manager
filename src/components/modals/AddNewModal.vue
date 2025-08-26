@@ -12,11 +12,9 @@
               </svg>
             </button>
           </div>
-          
           <div class="modal-body">
             <slot></slot>
           </div>
-          
           <div class="modal-footer" v-if="$slots.footer">
             <slot name="footer"></slot>
           </div>

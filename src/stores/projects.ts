@@ -14,7 +14,7 @@ import {
   ProjectStatus
 } from '@/types/types'
 import { projectsApi } from '@/services/api'
-import { useTasksStore } from './tasks'
+import { useTasksStore } from '@/stores/tasks'
 
 export const useProjectsStore = defineStore('projects', () => {
   const projects = ref<Project[]>([])

@@ -95,16 +95,16 @@
 
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
+import { useRoute, useRouter } from 'vue-router'
 import { onMounted, ref, computed, watch } from 'vue'
 
-import TaskTable from '@/components/TableComponent.vue'
-import AddNewModal from '@/components/modals/AddNewModal.vue'
-import TaskModal from '@/components/modals/TaskModal.vue'
-import { useRoute, useRouter } from 'vue-router'
-import { useProjectsStore } from '../stores/projects.ts'
-import { useTasksStore } from '../stores/tasks.ts'
+import { useTasksStore } from '@/stores/tasks.ts'
+import { useProjectsStore } from '@/stores/projects.ts'
 import TaskBoard from '@/components/TaskBoard.vue'
-import type { Task, TaskStatus, CreateTaskData } from '../types/types.ts'
+import TaskTable from '@/components/TableComponent.vue'
+import TaskModal from '@/components/modals/TaskModal.vue'
+import AddNewModal from '@/components/modals/AddNewModal.vue'
+import type { Task, TaskStatus, CreateTaskData } from '@/types/types'
 
 const route = useRoute()
 const router = useRouter()
@@ -122,16 +122,16 @@ const currentProject = computed(() =>
   projects.value.find(p => p.id.toString() === projectId.value)
 )
 
-const tasks = ref<Task[]>([])
-const tasksCount = computed(() => tasks.value.length)
 const loading = ref(false)
-const error = ref<string | null>(null)
+const tasks = ref<Task[]>([])
 const taskLoading = ref(false)
-const editingTask = ref<Task | null>(null)
-const taskToDelete = ref<Task | null>(null)
 const showTaskModal = ref(false)
 const showDeleteModal = ref(false)
 const draggableTasks = ref<Task[]>([])
+const error = ref<string | null>(null)
+const editingTask = ref<Task | null>(null)
+const taskToDelete = ref<Task | null>(null)
+const tasksCount = computed(() => tasks.value.length)
 
 const loadProjectTasks = async () => {
   if (!projectId.value) return
@@ -163,6 +163,7 @@ watch(
   },
   { immediate: true }
 )
+
 const handleReorder = () => {
   const ids = draggableTasks.value.map(p => p.id)
   projects.value.sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id))

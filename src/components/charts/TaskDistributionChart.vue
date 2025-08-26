@@ -45,14 +45,15 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import {
-  Chart as ChartJS,
-  ArcElement,
-  Tooltip,
   Legend,
+  Tooltip,
+  ArcElement,
   type ChartData,
-  type ChartOptions
+  type ChartOptions,
+  Chart as ChartJS
 } from 'chart.js'
 import { Doughnut } from 'vue-chartjs'
+
 import { TaskStatus } from '@/types/types'
 
 ChartJS.register(ArcElement, Tooltip, Legend)

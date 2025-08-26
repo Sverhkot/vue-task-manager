@@ -120,12 +120,27 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, computed, onMounted, onUnmounted, reactive, watch } from 'vue'
+  import { 
+    ref, 
+    watch,
+    computed, 
+    reactive, 
+    onMounted, 
+    onUnmounted
+  } from 'vue'
   import draggable from 'vuedraggable'
-  import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/vue/24/solid'
   import { useRouter } from 'vue-router'
-  import { ProjectStatus, type Header, type Model, TaskStatus, type Project, type Task } from '@/types/types'
 
+  import { 
+    type Task,
+    type Model,
+    type Header, 
+    type Project, 
+    TaskStatus,
+    ProjectStatus
+  } from '@/types/types'
+  import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/vue/24/solid'
+  
   const router = useRouter()
 
   function goToProject(id: number) {

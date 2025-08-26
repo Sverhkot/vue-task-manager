@@ -2,14 +2,13 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { toast } from 'vue3-toastify'
 
-import type 
-  { 
-    Task, 
-    SortOptions,
-    FilterOptions,
-    CreateTaskData
-  } from '../types/types.ts'
-import { TaskStatus } from '../types/types.ts'
+import  { 
+    type Task, 
+    TaskStatus,
+    type SortOptions,
+    type FilterOptions,
+    type CreateTaskData
+  } from '@/types/types.ts'
 import { tasksApi } from '@/services/api'
 
 export const useTasksStore = defineStore('tasks', () => {
@@ -72,7 +71,6 @@ export const useTasksStore = defineStore('tasks', () => {
           return 0
         })
       }
-
       return result
     }
   })
@@ -137,7 +135,6 @@ export const useTasksStore = defineStore('tasks', () => {
     try {
       const newTask = await tasksApi.create(data)
       tasks.value.push(newTask)
-      
       saveToLocalStorage()
       toast.success(`Task "${newTask.name}" created successfully!`)
       return newTask

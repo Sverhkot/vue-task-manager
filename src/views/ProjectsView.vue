@@ -19,7 +19,6 @@
     </div>
     
     <div v-else class="projects-section">
-      <!-- Task Distribution Chart -->
       <TaskDistributionChart 
         :task-distribution="taskDistributionByStatus"
         :loading="tasksStore.loading"
@@ -41,16 +40,12 @@
         @delete-project="handleDeleteProject"
       />
     </div>
-
-    <!-- Create Project Modal -->
     <ProjectModal
       :show="showCreateModal"
       :loading="modalLoading"
       @close="closeCreateModal"
       @save="handleSaveProject"
     />
-
-    <!-- Edit Project Modal -->
     <ProjectModal
       :show="showEditModal"
       :project="editingProject"
@@ -58,8 +53,6 @@
       @close="closeEditModal"
       @update="handleUpdateProject"
     />
-
-    <!-- Delete Confirmation Modal -->
     <AddNewModal
       :show="showDeleteModal"
       title="Delete Project"
@@ -89,13 +82,13 @@
 import { storeToRefs } from 'pinia'
 import { onMounted, ref, watch } from 'vue'
 
-import type { Project, CreateProjectInput } from '@/types/types.ts'
-import { useProjectsStore } from '@/stores/projects.ts'
 import { useTasksStore } from '@/stores/tasks.ts'
+import { useProjectsStore } from '@/stores/projects.ts'
 import ProjectsTable from '@/components/TableComponent.vue'
 import ProjectModal from '@/components/modals/ProjectModal.vue'
 import AddNewModal from '@/components/modals/AddNewModal.vue'
 import TaskDistributionChart from '@/components/charts/TaskDistributionChart.vue'
+import type { Project, CreateProjectInput } from '@/types/types.ts'
 
 const projectsStore = useProjectsStore()
 const tasksStore = useTasksStore()
@@ -104,8 +97,6 @@ const { projects, loading, error } = storeToRefs(projectsStore)
 const { taskDistributionByStatus } = storeToRefs(tasksStore)
 
 const draggableProjects = ref<Project[]>([])
-
-// Modal state
 const showCreateModal = ref(false)
 const showEditModal = ref(false)
 const showDeleteModal = ref(false)
@@ -148,7 +139,6 @@ const retryLoading = async () => {
   await tasksStore.fetchTasks()
 }
 
-// Handler functions
 const handleCreateProject = () => {
   showCreateModal.value = true
 }
