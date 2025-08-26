@@ -233,7 +233,6 @@ watch(() => props.task, (newTask) => {
 </script>
 
 <style scoped lang="scss">
-
 .task-form {
   .form-group {
     margin-bottom: 1.5rem;

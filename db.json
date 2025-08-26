@@ -17,14 +17,6 @@
   ],
   "tasks": [
     {
-      "id": "b446",
-      "name": "test task",
-      "assignee": "John Doe",
-      "status": "To Do",
-      "dueDate": "2025-08-30T00:00:00.000Z",
-      "projectId": "1756204353417"
-    },
-    {
       "id": "ee84",
       "name": "test task2",
       "assignee": "Jane Smith",
@@ -45,22 +37,6 @@
       "name": "test task changed name",
       "assignee": "Tom Anderson",
       "status": "To Do",
-      "dueDate": "2025-08-30T00:00:00.000Z",
-      "projectId": "1756204499514"
-    },
-    {
-      "id": "9ae2",
-      "name": "test task2",
-      "assignee": "Sarah Davis",
-      "status": "In Progress",
-      "dueDate": "2025-08-30T00:00:00.000Z",
-      "projectId": "1756204499514"
-    },
-    {
-      "id": "1f4e",
-      "name": "test task3",
-      "assignee": "Sarah Davis",
-      "status": "Done",
       "dueDate": "2025-08-30T00:00:00.000Z",
       "projectId": "1756204499514"
     }

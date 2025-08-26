@@ -120,20 +120,7 @@ const currentProject = computed(() =>
 )
 
 const tasks = ref<Task[]>([])
-
 const tasksCount = computed(() => tasks.value.length)
-
-const loadProjectTasks = async () => {
-  if (!projectId.value) return
-  try {
-    await tasksStore.fetchTasksByProject(projectId.value)
-    tasks.value = tasksStore.getTasksByProjectId(projectId.value)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (err: any) {
-    console.error('Error loading project tasks:', err)
-  }
-}
-
 const loading = ref(false)
 const error = ref<string | null>(null)
 const taskLoading = ref(false)
@@ -141,6 +128,12 @@ const editingTask = ref<Task | null>(null)
 const taskToDelete = ref<Task | null>(null)
 const showTaskModal = ref(false)
 const showDeleteModal = ref(false)
+
+const loadProjectTasks = async () => {
+  if (!projectId.value) return
+  await tasksStore.fetchTasksByProject(projectId.value)
+  tasks.value = tasksStore.getTasksByProjectId(projectId.value)
+}
 
 const tasksHeaders = [
   { key: 'id', title: 'ID', width: 60, minWidth: 50, sortable: true },
@@ -177,37 +170,23 @@ const closeTaskModal = () => {
 
 async function handleCreateTask(data: CreateTaskData) {
   taskLoading.value = true
-  try {
-    await tasksStore.createTask(data)
-    await loadProjectTasks()
-    closeTaskModal()
-  } catch (err) {
-    console.error('Failed to create task:', err)
-  } finally {
-    taskLoading.value = false
-  }
+  await tasksStore.createTask(data)
+  await loadProjectTasks()
+  closeTaskModal()
+  taskLoading.value = false
 }
 
 async function handleUpdateTask(id: string, data: Partial<Task>) {
   taskLoading.value = true
-  try {
-    await tasksStore.updateTask(id, data)
-    await loadProjectTasks()
-    closeTaskModal()
-  } catch (err) {
-    console.error('Failed to update task:', err)
-  } finally {
-    taskLoading.value = false
-  }
+  await tasksStore.updateTask(id, data)
+  await loadProjectTasks()
+  closeTaskModal()
+  taskLoading.value = false
 }
 
 async function handleTaskMove(payload: { taskId: string; newStatus: TaskStatus; newIndex: string }) {
-  try {
-    await tasksStore.updateTaskStatus(payload.taskId, payload.newStatus)
-    await loadProjectTasks()
-  } catch (err) {
-    console.error('Failed to update task status:', err)
-  }
+  await tasksStore.updateTaskStatus(payload.taskId, payload.newStatus)
+  await loadProjectTasks()
 }
 
 function handleTaskClick(task: Task) {
@@ -226,16 +205,13 @@ function handleDeleteTask(task: Task) {
 async function confirmDeleteTask() {
   if (!taskToDelete.value) return
   taskLoading.value = true
-  try {
-    await tasksStore.deleteTask(taskToDelete.value.id)
-    await loadProjectTasks()
-    showDeleteModal.value = false
-    taskToDelete.value = null
-  } catch (err) {
-    console.error('Failed to delete task:', err)
-  } finally {
-    taskLoading.value = false
-  }
+
+  await tasksStore.deleteTask(taskToDelete.value.id)
+  await loadProjectTasks()
+
+  showDeleteModal.value = false
+  taskToDelete.value = null
+  taskLoading.value = false
 }
 
 onMounted(async () => {

@@ -1,51 +1,3 @@
-<script setup lang="ts">
-  import { ref } from 'vue'
-  import AddNewModal from '../modals/AddNewModal.vue'
-  import type { CreateProjectInput } from '@/types/types'
-  import { useProjectsStore } from '@/stores/projects.ts'
-
-  const projectsStore = useProjectsStore()
-
-  const showCreateModal = ref(false)
-  const loading = ref(false)
-  const newProject = ref<CreateProjectInput>({
-    name: '',
-    description: ''
-  })
-
-  const errors = ref<Record<string, string>>({})
-
-  function closeCreateModal() {
-    showCreateModal.value = false
-    newProject.value = { name: '', description: '' }
-    errors.value = {}
-  }
-
-  async function handleCreateProject() {
-    errors.value = {}
-    
-    if (!newProject.value.name.trim()) {
-      errors.value.name = 'Project name is required'
-      return
-    }
-
-    loading.value = true
-
-    try {
-      console.log('Creating project:', newProject.value)
-      await projectsStore.addNewProject(newProject.value)
-
-      closeCreateModal()
-      
-    } catch (error) {
-      console.error('Failed to create project:', error)
-      errors.value.general = 'Failed to create project'
-    } finally {
-      loading.value = false
-    }
-  }
-</script>
-
 <template>
   <button class="btn btn-primary" @click="showCreateModal = true">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -105,6 +57,54 @@
     </template>
     </AddNewModal>
 </template>
+
+<script setup lang="ts">
+  import { ref } from 'vue'
+
+  import { useProjectsStore } from '@/stores/projects.ts'
+  import type { CreateProjectInput } from '@/types/types'
+  import AddNewModal from '@/components/modals/AddNewModal.vue'
+
+  const projectsStore = useProjectsStore()
+
+  const showCreateModal = ref(false)
+  const loading = ref(false)
+  const newProject = ref<CreateProjectInput>({
+    name: '',
+    description: ''
+  })
+  const errors = ref<Record<string, string>>({})
+
+  function closeCreateModal() {
+    showCreateModal.value = false
+    newProject.value = { name: '', description: '' }
+    errors.value = {}
+  }
+
+  async function handleCreateProject() {
+    errors.value = {}
+    
+    if (!newProject.value.name.trim()) {
+      errors.value.name = 'Project name is required'
+      return
+    }
+
+    loading.value = true
+
+    try {
+      console.log('Creating project:', newProject.value)
+      await projectsStore.addNewProject(newProject.value)
+
+      closeCreateModal()
+      
+    } catch (error) {
+      console.error('Failed to create project:', error)
+      errors.value.general = 'Failed to create project'
+    } finally {
+      loading.value = false
+    }
+  }
+</script>
 
 <style lang="scss" scoped>
 .btn {

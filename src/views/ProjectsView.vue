@@ -30,14 +30,16 @@
 import { storeToRefs } from 'pinia'
 import { onMounted, ref, watch } from 'vue'
 
+import type { Project } from '@/types/types.ts'
 import { useProjectsStore } from '@/stores/projects.ts'
 import ProjectsTable from '@/components/TableComponent.vue'
 import AddButtonComponent from '@/components/ui/AddButtonComponent.vue'
-import type { Project } from '@/types/types.ts'
 
 const projectsStore = useProjectsStore()
 
 const { projects, loading, error } = storeToRefs(projectsStore)
+
+const draggableProjects = ref<Project[]>([])
 
 const projectsHeaders = [
   { key: 'id', title: 'ID', width: 80, minWidth: 60, sortable: true },
@@ -46,8 +48,6 @@ const projectsHeaders = [
   { key: 'status', title: 'Status', width: 120, minWidth: 100, sortable: true },
   { key: 'createdAt', title: 'Created At', width: 150, minWidth: 120, sortable: true },
 ]
-
-const draggableProjects = ref<Project[]>([])
 
 watch(
   () => projectsStore.projectsWithCounts,
@@ -66,19 +66,7 @@ const hasTriedLoading = ref(false)
 
 const loadProjects = async () => {
   if (loading.value) return
-  
-  console.log('Attempting to load projects...')
-  
-  try {
-    const result = await projectsStore.dispatchGetProjects()
-    console.log('Load result:', result)
-    
-    if (!result.success) {
-      console.error("Failed to load projects:", result.status, result)
-    }
-  } catch (err) {
-    console.error('Error during project loading:', err)
-  }
+  await projectsStore.dispatchGetProjects()
 }
 
 const retryLoading = () => {
