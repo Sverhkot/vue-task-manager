@@ -33,18 +33,10 @@
       "projectId": "1756204353417"
     },
     {
-      "id": "de08",
-      "name": "test task",
-      "assignee": "John Doe",
-      "status": "To Do",
-      "dueDate": "2025-08-30T00:00:00.000Z",
-      "projectId": "1756204499514"
-    },
-    {
       "id": "4b84",
       "name": "test task2",
       "assignee": "Tom Anderson",
-      "status": "In Progress",
+      "status": "To Do",
       "dueDate": "2025-08-30T00:00:00.000Z",
       "projectId": "1756204499514"
     }

@@ -156,14 +156,13 @@
   margin-bottom: 16px;
   font-size: 14px;
 }
-
 .form-group {
   margin-bottom: 16px;
 }
 
 .form-label {
   display: block;
-  font-weight: 500;
+  font-weight: 600;
   margin-bottom: 4px;
   color: #374151;
 }

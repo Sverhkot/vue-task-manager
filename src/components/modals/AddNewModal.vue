@@ -146,6 +146,8 @@ watch(() => props.show, (show) => {
 }
 
 .modal-body {
+  box-sizing: border-box;
+  max-width: 95%;
   padding: 1.5rem;
 }
 
