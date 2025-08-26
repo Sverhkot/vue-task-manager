@@ -1,44 +1,21 @@
 {
   "projects": [
     {
-      "id": "1756204353417",
-      "name": "testProject",
-      "description": "test project description",
+      "id": "1756223934842",
+      "name": "Project 1",
+      "description": "sda",
       "status": "Active",
-      "createdAt": "2025-08-26T10:32:33.417Z"
-    },
-    {
-      "id": "1756204499514",
-      "name": "test project2",
-      "description": "test project2 description",
-      "status": "Active",
-      "createdAt": "2025-08-26T10:34:59.514Z"
+      "createdAt": "2025-08-26T15:58:54.842Z"
     }
   ],
   "tasks": [
     {
-      "id": "ee84",
-      "name": "test task2",
-      "assignee": "Jane Smith",
-      "status": "In Progress",
-      "dueDate": "2025-08-30T00:00:00.000Z",
-      "projectId": "1756204353417"
-    },
-    {
-      "id": "96f2",
-      "name": "test task3",
-      "assignee": "Bob Johnson",
-      "status": "Done",
-      "dueDate": "2025-08-30T00:00:00.000Z",
-      "projectId": "1756204353417"
-    },
-    {
-      "id": "4b84",
-      "name": "test task2",
-      "assignee": "Tom Anderson",
+      "id": "8be5",
+      "name": "task1",
+      "assignee": "John Doe",
       "status": "To Do",
-      "dueDate": "2025-08-30T00:00:00.000Z",
-      "projectId": "1756204499514"
+      "dueDate": "2025-08-28T00:00:00.000Z",
+      "projectId": "1756223934842"
     }
   ]
 }

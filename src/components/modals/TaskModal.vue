@@ -87,6 +87,7 @@ import { ref, computed, watch } from 'vue'
 
 import AddNewModal from '@/components/modals/AddNewModal.vue'
 import { type Task, TaskStatus, type CreateTaskData } from '@/types/types'
+import { useTasksStore } from '@/stores/tasks'
 
 interface Props {
   show: boolean
@@ -107,6 +108,8 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const emit = defineEmits<Emits>()
+
+const tasksStore = useTasksStore()
 
 const availableAssignees = [
   'John Doe',
@@ -164,6 +167,18 @@ const validateForm = () => {
 
   if (!form.value.name.trim()) {
     errors.value.name = 'Task name is required'
+  } else {
+    const projectTasks = tasksStore.getTasksByProjectId(props.projectId)
+    const trimmedName = form.value.name.trim()
+    
+    const existingTask = projectTasks.find(task => 
+      task.name.toLowerCase() === trimmedName.toLowerCase() && 
+      (!isEdit.value || task.id !== props.task?.id)
+    )
+    
+    if (existingTask) {
+      errors.value.name = 'A task with this name already exists in this project'
+    }
   }
 
   if (!form.value.assignee) {
@@ -228,6 +243,38 @@ watch(() => props.show, (newValue) => {
 watch(() => props.task, (newTask) => {
   if (newTask && props.show) {
     populateForm(newTask)
+  }
+})
+
+watch(() => form.value.name, () => {
+  if (form.value.name.trim() && errors.value.name) {
+    delete errors.value.name
+    
+    const projectTasks = tasksStore.getTasksByProjectId(props.projectId)
+    const trimmedName = form.value.name.trim()
+    
+    const existingTask = projectTasks.find(task => 
+      task.name.toLowerCase() === trimmedName.toLowerCase() && 
+      (!isEdit.value || task.id !== props.task?.id)
+    )
+    
+    if (existingTask) {
+      errors.value.name = 'A task with this name already exists in this project'
+    }
+  }
+})
+
+watch(() => form.value.dueDate, () => {
+  if (form.value.dueDate && errors.value.dueDate) {
+    delete errors.value.dueDate
+    
+    const selectedDate = new Date(form.value.dueDate)
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    
+    if (selectedDate < today) {
+      errors.value.dueDate = 'Due date cannot be in the past'
+    }
   }
 })
 </script>

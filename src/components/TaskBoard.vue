@@ -110,6 +110,7 @@ function getTasksByStatus(status: TaskStatus): Task[] {
   return props.tasks.filter(task => task.status === status)
 }
 
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function handleTaskMove(event: any, status: TaskStatus) {
   if (event.added) {

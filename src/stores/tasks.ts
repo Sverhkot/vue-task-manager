@@ -1,15 +1,15 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import { toast } from 'vue3-toastify'
 
 import type 
   { 
     Task, 
-    TaskStatus,
     SortOptions,
     FilterOptions,
     CreateTaskData
   } from '../types/types.ts'
+import { TaskStatus } from '../types/types.ts'
 import { tasksApi } from '@/services/api'
 
 export const useTasksStore = defineStore('tasks', () => {
@@ -54,7 +54,9 @@ export const useTasksStore = defineStore('tasks', () => {
 
       if (sort) {
         result.sort((a, b) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           let aValue: any = a[sort.key as keyof Task]
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           let bValue: any = b[sort.key as keyof Task]
 
           if (sort.key === 'dueDate' || sort.key === 'createdAt') {
@@ -78,6 +80,22 @@ export const useTasksStore = defineStore('tasks', () => {
   const uniqueAssignees = computed(() => {
     const assignees = [...new Set(tasks.value.map(task => task.assignee))]
     return assignees.sort()
+  })
+
+  const taskDistributionByStatus = computed(() => {
+    const distribution = {
+      [TaskStatus.TODO]: 0,
+      [TaskStatus.IN_PROGRESS]: 0,
+      [TaskStatus.DONE]: 0
+    }
+
+    tasks.value.forEach(task => {
+      if (task.status && distribution.hasOwnProperty(task.status)) {
+        distribution[task.status]++
+      }
+    })
+
+    return distribution
   })
 
   async function fetchTasks() {
@@ -121,9 +139,11 @@ export const useTasksStore = defineStore('tasks', () => {
       tasks.value.push(newTask)
       
       saveToLocalStorage()
+      toast.success(`Task "${newTask.name}" created successfully!`)
       return newTask
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Failed to create task'
+      toast.error(`Failed to create task: ${error.value}`)
       console.error('Error creating task:', err)
       throw err
     } finally {
@@ -141,9 +161,11 @@ export const useTasksStore = defineStore('tasks', () => {
         tasks.value[index] = updatedTask
       }
       saveToLocalStorage()
+      toast.success(`Task "${updatedTask.name}" updated successfully!`)
       return updatedTask
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Failed to update task'
+      toast.error(`Failed to update task: ${error.value}`)
       console.error('Error updating task:', err)
       throw err
     } finally {
@@ -154,14 +176,51 @@ export const useTasksStore = defineStore('tasks', () => {
   async function deleteTask(id: string) {
     loading.value = true
     error.value = null
+    
+    const taskToDelete = tasks.value.find(t => t.id === id)
+    const taskName = taskToDelete?.name || 'Task'
+    
     try {
       await tasksApi.delete(id)
       tasks.value = tasks.value.filter(t => t.id !== id)
       
       saveToLocalStorage()
+      toast.success(`Task "${taskName}" deleted successfully!`)
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Failed to delete task'
+      toast.error(`Failed to delete task: ${error.value}`)
       console.error('Error deleting task:', err)
+      throw err
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function deleteTasksByProjectId(projectId: string) {
+    loading.value = true
+    error.value = null
+    
+    try {
+      const projectTasks = tasks.value.filter(t => t.projectId === projectId)
+      
+      for (const task of projectTasks) {
+        try {
+          await tasksApi.delete(task.id)
+        } catch (err) {
+          console.warn(`Failed to delete task ${task.id} from API:`, err)
+        }
+      }
+      
+      tasks.value = tasks.value.filter(t => t.projectId !== projectId)
+      
+      saveToLocalStorage()
+      
+      if (projectTasks.length > 0) {
+        toast.success(`${projectTasks.length} task(s) deleted with project!`)
+      }
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Failed to delete project tasks'
+      console.error('Error deleting project tasks:', err)
       throw err
     } finally {
       loading.value = false
@@ -214,6 +273,7 @@ export const useTasksStore = defineStore('tasks', () => {
     getTasksByStatus,
     getTasksByProjectId,
     filteredAndSortedTasks,
+    taskDistributionByStatus,
     fetchTasks,
     createTask,
     updateTask,
@@ -222,6 +282,7 @@ export const useTasksStore = defineStore('tasks', () => {
     updateTaskStatus,
     saveToLocalStorage,
     fetchTasksByProject,
-    loadFromLocalStorage
+    loadFromLocalStorage,
+    deleteTasksByProjectId
   }
 })

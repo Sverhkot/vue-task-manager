@@ -1,6 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import { toast } from 'vue3-toastify'
 
 import { 
   type Task,
@@ -59,6 +59,7 @@ export const useProjectsStore = defineStore('projects', () => {
         if (response.ok) {
           const createdProject = await response.json()
           projects.value.push(createdProject)
+          toast.success(`Project "${createdProject.name}" created successfully!`)
           return {
             success: true,
             content: createdProject,
@@ -71,6 +72,7 @@ export const useProjectsStore = defineStore('projects', () => {
         console.warn('API unavailable, adding to local store:', apiError)
 
         projects.value.push(newProject)
+        toast.success(`Project "${newProject.name}" created locally!`)
         return {
             success: false,
             status: 400,
@@ -81,6 +83,7 @@ export const useProjectsStore = defineStore('projects', () => {
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to create project'
       error.value = errorMessage
+      toast.error(`Failed to create project: ${errorMessage}`)
       
       return {
         success: false,
@@ -93,7 +96,7 @@ export const useProjectsStore = defineStore('projects', () => {
     }
   }
 
-  async function dispatchGetProjects(): Promise<APIResponse<Project[]>> {
+  async function fetchAllProjects(): Promise<APIResponse<Project[]>> {
     loading.value = true
     error.value = null
 
@@ -145,7 +148,9 @@ export const useProjectsStore = defineStore('projects', () => {
 
       if (sort) {
         result.sort((a, b) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           let aValue: any = a[sort.key as keyof Project]
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           let bValue: any = b[sort.key as keyof Project]
 
           if (sort.key === 'createdAt' || sort.key === 'dueDate') {
@@ -189,9 +194,11 @@ export const useProjectsStore = defineStore('projects', () => {
       const newProject = await projectsApi.create(data)
       projects.value.push(newProject)
       saveToLocalStorage()
+      toast.success(`Project "${newProject.name}" created successfully!`)
       return newProject
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Failed to create project'
+      toast.error(`Failed to create project: ${error.value}`)
       console.error('Error creating project:', err)
       throw err
     } finally {
@@ -209,9 +216,11 @@ export const useProjectsStore = defineStore('projects', () => {
         projects.value[index] = updatedProject
       }
       saveToLocalStorage()
+      toast.success(`Project "${updatedProject.name}" updated successfully!`)
       return updatedProject
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Failed to update project'
+      toast.error(`Failed to update project: ${error.value}`)
       console.error('Error updating project:', err)
       throw err
     } finally {
@@ -222,12 +231,20 @@ export const useProjectsStore = defineStore('projects', () => {
   async function deleteProject(id: string) {
     loading.value = true
     error.value = null
+    
+    const projectToDelete = projects.value.find(p => p.id === id)
+    const projectName = projectToDelete?.name || 'Project'
+    
     try {
+      await tasksStore.deleteTasksByProjectId(id)
+      
       await projectsApi.delete(id)
       projects.value = projects.value.filter(p => p.id !== id)
       saveToLocalStorage()
+      toast.success(`Project "${projectName}" and all its tasks deleted successfully!`)
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Failed to delete project'
+      toast.error(`Failed to delete project: ${error.value}`)
       console.error('Error deleting project:', err)
       throw err
     } finally {
@@ -269,7 +286,7 @@ export const useProjectsStore = defineStore('projects', () => {
     deleteProject,
     getProjectById,
     saveToLocalStorage,
-    dispatchGetProjects,
+    fetchAllProjects,
     loadFromLocalStorage
   }
 })

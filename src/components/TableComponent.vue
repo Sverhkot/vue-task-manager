@@ -58,21 +58,51 @@
       >
         <template #item="{ element: row }">
           <tr v-if="tableType === 'projects'">
-            <td v-for="header in headersState" :key="String(header.key)" @click="goToProject(row.id)">
-              <span v-if="header.key === 'createdAt'">
-                {{ formatDate(row[String(header.key)]) }}
-              </span>
-              <span v-else-if="header.key === 'status'">
-                {{ getStatusLabel(row[String(header.key)]) }}
-              </span>
-              <span v-else>
-                {{ row[String(header.key)] }}
-              </span>
+            <td v-for="header in headersState" :key="String(header.key)">
+              <div v-if="header.key === 'actions'" class="action-buttons">
+                <button @click.stop="$emit('edit-project', row)" class="btn-action btn-edit" title="Edit Project">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="m18.5 2.5 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                  </svg>
+                </button>
+                <button @click.stop="$emit('delete-project', row)" class="btn-action btn-delete" title="Delete Project">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3,6 5,6 21,6"></polyline>
+                    <path d="m19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
+                  </svg>
+                </button>
+              </div>
+              <div v-else @click="goToProject(row.id)" class="clickable-cell">
+                <span v-if="header.key === 'createdAt'">
+                  {{ formatDate(row[String(header.key)]) }}
+                </span>
+                <span v-else-if="header.key === 'status'">
+                  {{ getStatusLabel(row[String(header.key)]) }}
+                </span>
+                <span v-else>
+                  {{ row[String(header.key)] }}
+                </span>
+              </div>
             </td>
           </tr>
           <tr v-else-if="tableType === 'tasks'">
             <td v-for="header in headersState" :key="String(header.key)">
-              <span v-if="header.key === 'dueDate' || header.key === 'createdAt'">
+              <div v-if="header.key === 'actions'" class="action-buttons">
+                <button @click.stop="$emit('edit-task', row)" class="btn-action btn-edit" title="Edit Task">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="m18.5 2.5 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                  </svg>
+                </button>
+                <button @click.stop="$emit('delete-task', row)" class="btn-action btn-delete" title="Delete Task">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3,6 5,6 21,6"></polyline>
+                    <path d="m19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
+                  </svg>
+                </button>
+              </div>
+              <span v-else-if="header.key === 'dueDate' || header.key === 'createdAt'">
                 {{ formatDate(row[String(header.key)]) }}
               </span>
               <span v-else-if="header.key === 'status'">
@@ -90,11 +120,11 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, computed, onMounted, onUnmounted, reactive } from 'vue'
+  import { ref, computed, onMounted, onUnmounted, reactive, watch } from 'vue'
   import draggable from 'vuedraggable'
   import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/vue/24/solid'
   import { useRouter } from 'vue-router'
-  import { ProjectStatus, type Header, type Model, TaskStatus } from '@/types/types'
+  import { ProjectStatus, type Header, type Model, TaskStatus, type Project, type Task } from '@/types/types'
 
   const router = useRouter()
 
@@ -116,6 +146,10 @@
 
   const emit = defineEmits<{
     (e: 'update:modelValue', value: typeof props.modelValue): void
+    (e: 'edit-project', project: Project): void
+    (e: 'delete-project', project: Project): void
+    (e: 'edit-task', task: Task): void
+    (e: 'delete-task', task: Task): void
   }>()
 
   const activeResizerIndex = ref<number | null>(null)
@@ -132,6 +166,32 @@
     name: '',
     assignee: ''
   })
+
+  const getStorageKey = () => `table-filters-${props.tableType}`
+  
+  const saveFiltersToStorage = () => {
+    try {
+      localStorage.setItem(getStorageKey(), JSON.stringify(filters.value))
+    } catch (error) {
+      console.error('Error saving filters to localStorage:', error)
+    }
+  }
+  
+  const loadFiltersFromStorage = () => {
+    try {
+      const stored = localStorage.getItem(getStorageKey())
+      if (stored) {
+        const parsedFilters = JSON.parse(stored)
+        Object.keys(filters.value).forEach(key => {
+          if (parsedFilters[key] !== undefined) {
+            filters.value[key] = parsedFilters[key]
+          }
+        })
+      }
+    } catch (error) {
+      console.error('Error loading filters from localStorage:', error)
+    }
+  }
 
   const headersState = reactive(
     props.headers.map(h => ({ ...h, width: h.width || 150 }))
@@ -252,10 +312,14 @@
     })
   }
 
+  watch(filters, saveFiltersToStorage, { deep: true })
+
   onMounted(() => {
     document.addEventListener('mousemove', doResize)
     document.addEventListener('mouseup', stopResize)
     document.addEventListener('mouseleave', stopResize)
+    
+    loadFiltersFromStorage()
   })
 
   onUnmounted(() => {
@@ -353,6 +417,51 @@
     &:hover {
       background: rgba(59, 130, 246, 0.3);
     }
+  }
+
+  .action-buttons {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+  }
+
+  .btn-action {
+    padding: 6px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      transform: scale(1.1);
+    }
+  }
+
+  .btn-edit {
+    background-color: #f0f9ff;
+    color: #0369a1;
+    
+    &:hover {
+      background-color: #e0f2fe;
+      color: #0c4a6e;
+    }
+  }
+
+  .btn-delete {
+    background-color: #fef2f2;
+    color: #dc2626;
+    
+    &:hover {
+      background-color: #fee2e2;
+      color: #b91c1c;
+    }
+  }
+
+  .clickable-cell {
+    cursor: pointer;
   }
 }
 </style>

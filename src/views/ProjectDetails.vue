@@ -43,6 +43,8 @@
           :headers="tasksHeaders"
           table-type="tasks"
           @row-reorder="handleReorder"
+          @edit-task="handleEditTask"
+          @delete-task="handleDeleteTask"
         />
         
         <TaskBoard
@@ -143,6 +145,7 @@ const tasksHeaders = [
   { key: 'assignee', title: 'Assignee', width: 120, minWidth: 100, sortable: true },
   { key: 'status', title: 'Status', width: 120, minWidth: 100, sortable: true },
   { key: 'dueDate', title: 'Due Date', width: 130, minWidth: 120, sortable: true },
+  { key: 'actions', title: 'Actions', width: 120, minWidth: 100, sortable: false },
 ]
 
 const displayTasks = computed(() => tasks.value)
@@ -228,7 +231,7 @@ async function confirmDeleteTask() {
 }
 
 onMounted(async () => {
-  await projectsStore.dispatchGetProjects()
+  await projectsStore.fetchAllProjects()
   await loadProjectTasks()
 })
 </script>
