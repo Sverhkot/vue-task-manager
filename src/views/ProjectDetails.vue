@@ -37,11 +37,12 @@
       </div>
       
       <template v-else>
-        <ProjectsTable
+        <TaskTable
           :data="tasks"
-          v-model:modelValue="displayTasks"
+          v-model:modelValue="draggableTasks"
           :headers="tasksHeaders"
           table-type="tasks"
+          @row-reorder="handleReorder"
         />
         
         <TaskBoard
@@ -94,7 +95,7 @@
 import { storeToRefs } from 'pinia'
 import { onMounted, ref, computed, watch } from 'vue'
 
-import ProjectsTable from '@/components/TableComponent.vue'
+import TaskTable from '@/components/TableComponent.vue'
 import AddNewModal from '@/components/modals/AddNewModal.vue'
 import TaskModal from '@/components/modals/TaskModal.vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -128,6 +129,7 @@ const editingTask = ref<Task | null>(null)
 const taskToDelete = ref<Task | null>(null)
 const showTaskModal = ref(false)
 const showDeleteModal = ref(false)
+const draggableTasks = ref<Task[]>([])
 
 const loadProjectTasks = async () => {
   if (!projectId.value) return
@@ -151,6 +153,17 @@ watch(
     tasks.value = newTasks
   }
 )
+watch(
+  () => tasksStore.getTasksByProjectId(projectId.value),
+  function (newVal) {
+    draggableTasks.value = newVal.slice()
+  },
+  { immediate: true }
+)
+const handleReorder = () => {
+  const ids = draggableTasks.value.map(p => p.id)
+  projects.value.sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id))
+}
 
 const goBack = () => router.push('/projects')
 const formatDate = (dateString: string) => new Date(dateString).toLocaleDateString()
