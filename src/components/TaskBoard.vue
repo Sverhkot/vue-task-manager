@@ -82,10 +82,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import draggable from 'vuedraggable'
 
-import type { Task, TaskStatus } from '../types/types'
+import { TaskStatus, type Task } from '../types/types'
 
 interface Props {
   tasks: Task[]
@@ -102,13 +101,14 @@ const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
 const taskStatuses = [
-  { value: 'todo' as TaskStatus, label: 'To Do' },
-  { value: 'in_progress' as TaskStatus, label: 'In Progress' },
-  { value: 'done' as TaskStatus, label: 'Done' }
+  { value: TaskStatus.TODO, label: 'To Do' },
+  { value: TaskStatus.IN_PROGRESS, label: 'In Progress' },
+  { value: TaskStatus.DONE, label: 'Done' }
 ]
-const getTasksByStatus = computed(() => {
-  return (status: TaskStatus) => props.tasks.filter(task => task.status === status)
-})
+
+function getTasksByStatus(status: TaskStatus): Task[] {
+  return props.tasks.filter(task => task.status === status)
+}
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function handleTaskMove(event: any, status: TaskStatus) {

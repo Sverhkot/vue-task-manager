@@ -32,26 +32,19 @@
               @click.stop
             />
             <select
-              v-else-if="String(header.key) === 'status' && tableType === 'tasks'"
-              v-model="filters.status"
-              name="status"
-              @click.stop
-            >
-              <option value="" selected>All</option>
-              <option value="To Do">To Do</option>
-              <option value="In Progress">In Progress</option>
-              <option value="Done">Done</option>
-
-            </select>
-            <select
-              v-else-if="String(header.key) === 'status' && tableType === 'projects'"
+              v-else-if="String(header.key) === 'status'"
               v-model="filters.status"
               name="status"
               @click.stop
             >
               <option value="">All</option>
-              <option value="active">Active</option>
-              <option value="archived">Archived</option>
+              <option 
+                v-for="option in statusOptions" 
+                :key="option.value" 
+                :value="option.value"
+              >
+                {{ option.label }}
+              </option>
             </select>
           </th>
         </tr>
@@ -69,6 +62,9 @@
               <span v-if="header.key === 'createdAt'">
                 {{ formatDate(row[String(header.key)]) }}
               </span>
+              <span v-else-if="header.key === 'status'">
+                {{ getStatusLabel(row[String(header.key)]) }}
+              </span>
               <span v-else>
                 {{ row[String(header.key)] }}
               </span>
@@ -78,6 +74,9 @@
             <td v-for="header in headersState" :key="String(header.key)">
               <span v-if="header.key === 'dueDate' || header.key === 'createdAt'">
                 {{ formatDate(row[String(header.key)]) }}
+              </span>
+              <span v-else-if="header.key === 'status'">
+                {{ getStatusLabel(row[String(header.key)]) }}
               </span>
               <span v-else>
                 {{ row[String(header.key)] }}
@@ -95,7 +94,7 @@
   import draggable from 'vuedraggable'
   import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/vue/24/solid'
   import { useRouter } from 'vue-router'
-  import type { Header, Model } from '@/types/types'
+  import { ProjectStatus, type Header, type Model, TaskStatus } from '@/types/types'
 
   const router = useRouter()
 
@@ -103,10 +102,16 @@
     router.push(`/projects/${id}`)
   }
 
+  interface StatusOption {
+    value: string
+    label: string
+  }
+
   const props = defineProps<{
     modelValue: Model[]
     headers: Header<Model>[]
-    tableType: string
+    tableType: 'projects' | 'tasks'
+    statusOptions?: StatusOption[]
   }>()
 
   const emit = defineEmits<{
@@ -131,6 +136,31 @@
   const headersState = reactive(
     props.headers.map(h => ({ ...h, width: h.width || 150 }))
   )
+
+  const statusOptions = computed(() => {
+    if (props.statusOptions) {
+      return props.statusOptions
+    }
+    
+    if (props.tableType === 'tasks') {
+      return [
+        { value: TaskStatus.TODO, label: 'To Do' },
+        { value: TaskStatus.IN_PROGRESS, label: 'In Progress' },
+        { value: TaskStatus.DONE, label: 'Done' }
+      ]
+    } else if (props.tableType === 'projects') {
+      return [
+        { value: ProjectStatus.ACTIVE, label: 'Active' },
+        { value: ProjectStatus.ARCHIVED, label: 'Archived' }
+      ]
+    }
+    return []
+  })
+
+  const getStatusLabel = (statusValue: string) => {
+    const option = statusOptions.value.find(opt => opt.value === statusValue)
+    return option ? option.label : statusValue
+  }
 
   const filteredItems = computed(() => {
     if (!props.modelValue || !Array.isArray(props.modelValue)) {

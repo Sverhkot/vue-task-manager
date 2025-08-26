@@ -6,8 +6,8 @@ export interface Project {
   description?: string
 }
 export enum ProjectStatus {
-  ACTIVE = 'active',
-  COMPLETED = 'completed'
+  ACTIVE = 'Active',
+  ARCHIVED = 'Archived'
 }
 export interface Task {
   id: string
@@ -19,9 +19,9 @@ export interface Task {
 }
 
 export enum TaskStatus {
-  TODO = 'todo',
-  IN_PROGRESS = 'in_progress',
-  DONE = 'done'
+  TODO = 'To Do',
+  IN_PROGRESS = 'In Progress',
+  DONE = 'Done'
 }
 
 export interface Header<T> {
